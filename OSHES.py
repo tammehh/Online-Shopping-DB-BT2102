@@ -60,6 +60,11 @@ def customerPurchaseItem(CustomerID, ItemID, PurchaseDate, PurchaseStatus):
     data = (CustomerID, PurchaseDate, PurchaseStatus, ItemID,)
     c.execute(sql, data)
     conn.commit()
+
+    myquery = { "0.ItemID": ItemID }
+    newvalues = { "$set": { "0.PurchaseStatus": PurchaseStatus } }
+    db.Items.update_one({}, newvalues)
+
     return "done"
 
 #def customerRequestService() #mg
