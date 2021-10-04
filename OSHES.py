@@ -48,8 +48,19 @@ def addAdmin(ID, name, gender, number, pw):
     return "done"
 
 #def addCustomer()
+def addCustomer(ID, name, address, gender, email, number, pw):
+    val = (ID, name, address, gender, email, number, pw)
+    sql = "INSERT INTO Customers(CustomerID, CustomerName, Address, Gender, EmailAddress, PhoneNumber, Password) VALUES" + str(val) + ";" 
+    c.execute(sql)
+    return "done"
 
 #def customerPurchaseItem() #mg
+def customerPurchaseItem(CustomerID, ItemID, PurchaseDate, PurchaseStatus):
+    sql = "UPDATE Item SET CustomerID = ?, PurchaseDate = ?, PurchaseStatus = ? WHERE ItemID = ?"
+    data = (CustomerID, PurchaseDate, PurchaseStatus, ItemID,)
+    c.execute(sql, data)
+    conn.commit()
+    return "done"
 
 #def customerRequestService() #mg
 
