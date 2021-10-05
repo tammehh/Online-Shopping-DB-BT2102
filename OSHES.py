@@ -19,6 +19,8 @@ for query in sqlQueries:
 #sample code#
 #c.execute('UPDATE items SET Category = "Lights" WHERE ItemID = 1001') #update table
 #print(pd.read_sql_query('SELECT Category FROM items WHERE ItemID == 1001',OSHE)) #prints output in idle
+#db.Items.find_one({"0.ItemID": "1073"}) #prints a document from MongoDB Items collection
+
 
 ###connecting to MongoDB###
 mongodb = MongoClient('localhost', 27017)
