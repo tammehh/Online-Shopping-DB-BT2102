@@ -107,9 +107,9 @@ class CustomerRegistration(tk.Frame):
     def validRegistration(self):
         self.output_label = tk.Label(self)
         self.output_label.pack()
-        self.output_label.config(text= name.get() + "'s Registration as Administrator successful")
+        self.output_label.config(text= name.get() + "'s Registration as Customer successful")
         val = ("1234567890", name.get(), add.get(), gender.get(), email.get(), number.get(), password.get())
-        sql = "INSERT INTO Administrator (AdministratorID, AdminName, Gender, PhoneNumber, Password) VALUES " + str(val) + ";"
+        sql = "INSERT INTO Customer (CustomerID, CustomerName, Gender, EmailAddress, PhoneNumber, Password) VALUES " + str(val) + ";"
         c.execute(sql)
 
     def __init__(self, master):
