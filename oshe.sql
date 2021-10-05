@@ -42,7 +42,8 @@ CREATE TABLE ModelType(
 	ProductID Char(3) CHECK(ProductID IN ("001","002","003","004","005","006","007")),
 	Model VARCHAR(10) CHECK(Model IN ("Light1", "Light2", "SmartHome1", "Safe1", "Safe2", "Safe3")),
 	Category VARCHAR(6) CHECK(Category IN ("Lights", "Locks")),
-	CostPrice DECIMAL(5,2) NOT NULL,
+	Cost DECIMAL(5,2) NOT NULL,
+	Price DECIMAL(5,2) NOT NULL,
 	Warranty INT NOT NULL,
 	PRIMARY KEY(ProductID)
  );
