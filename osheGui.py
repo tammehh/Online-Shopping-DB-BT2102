@@ -20,6 +20,7 @@ class SampleApp(tk.Tk):
         tk.Tk.__init__(self)
         self._frame = None
         self.switch_frame(StartPage)
+        self.masteruser = ""
 
     def switch_frame(self, frame_class):
         """Destroys current frame and replaces it with a new one."""
@@ -42,11 +43,13 @@ class StartPage(tk.Frame):
         tk.Button(self, text='Admin Register' , width=20,bg= "black",fg='white',command= lambda: master.switch_frame(AdminRegistration)).pack(padx=10,pady=10)
 
 class CustLogin(tk.Frame):
-    def validLogin(self):
-        self.output_label = tk.Label(self)
-        self.output_label.pack()
-        self.output_label.config(text= username.get() + "Login successful")
-
+    def validLogin(self, master):
+        #NEED IF ELSE STATEMENTS TO CHECK VALID LOGIN#
+        #self.output_label = tk.Label(self)
+        #self.output_label.pack()
+        #self.output_label.config(text= username.get() + "Login successful")
+        return lambda: master.switch_frame(CustomerHomepage)
+    
     def __init__(self, master):
         global username
         global password
@@ -60,6 +63,7 @@ class CustLogin(tk.Frame):
         username = tk.StringVar()
         usernameEntry = tk.Entry(self,textvariable=username, font = ("bold", 10))
         usernameEntry.pack(pady=10)
+        master.masteruser = username
         
 
         passwordLabel = tk.Label(self,text = "Password: ", font = ("bold", 10))
@@ -68,15 +72,16 @@ class CustLogin(tk.Frame):
         passwordEntry = tk.Entry(self,textvariable=password, show="*", font = ("bold", 10))
         passwordEntry.pack(pady=10)
         
-
-        tk.Button(self, text='LOGIN' , width=20,bg="black",fg='white',command= self.validLogin).pack(pady = 10)
+        ##INCLUDED MASTER AS PARMS
+        tk.Button(self, text='LOGIN' , width=20,bg="black",fg='white',command= self.validLogin(master)).pack(pady = 10)
         tk.Button(self, text='BACK' , width=20,bg="black",fg='white',command= lambda: master.switch_frame(StartPage)).pack()
     
 class AdminLogin(tk.Frame):
-    def validLogin(self):
-        self.output_label = tk.Label(self)
-        self.output_label.pack()
-        self.output_label.config(text= username.get() + "Login successful")
+    def validLogin(self,master):
+        #self.output_label = tk.Label(self)
+        #self.output_label.pack()
+        #self.output_label.config(text= username.get() + "Login successful")
+        return lambda: master.switch_frame(AdminHomepage)
 
     def __init__(self, master):
         global username
@@ -91,6 +96,7 @@ class AdminLogin(tk.Frame):
         username = tk.StringVar()
         usernameEntry = tk.Entry(self,textvariable=username, font = ("bold", 10))
         usernameEntry.pack(pady=10)
+        master.masteruser = username
         
 
         passwordLabel = tk.Label(self,text = "Password: ", font = ("bold", 10))
@@ -100,7 +106,7 @@ class AdminLogin(tk.Frame):
         passwordEntry.pack(pady=10)
         
 
-        tk.Button(self, text='LOGIN' , width=20,bg="black",fg='white',command= self.validLogin).pack(pady = 10)
+        tk.Button(self, text='LOGIN' , width=20,bg="black",fg='white',command= self.validLogin(master)).pack(pady = 10)
         tk.Button(self, text='BACK' , width=20,bg="black",fg='white',command= lambda: master.switch_frame(StartPage)).pack()
         
 class CustomerRegistration(tk.Frame):
@@ -215,6 +221,17 @@ class AdminRegistration(tk.Frame):
         tk.Button(self, text='REGISTER' , width=20,bg="black",fg='white',command= self.validRegistration).pack(pady = 10)
         tk.Button(self, text='BACK' , width=20,bg="black",fg='white',command= lambda: master.switch_frame(StartPage)).pack()
         
+class CustomerHomepage(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
+        self.username = master.masteruser.get()
+        tk.Label(self, text="Welcome, " + self.username + "!", width = 20, font=("bold",20)).pack()
+    
+class AdminHomepage(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
+        self.username = master.masteruser.get()
+        tk.Label(self, text="Welcome, " + self.username + "!", width = 20, font=("bold",20)).pack()
        
 if __name__ == "__main__":
     app = SampleApp()
