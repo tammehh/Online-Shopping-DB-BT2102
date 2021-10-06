@@ -43,13 +43,41 @@ class StartPage(tk.Frame):
         tk.Button(self, text='Admin Register' , width=20,bg= "black",fg='white',command= lambda: master.switch_frame(AdminRegistration)).pack(padx=10,pady=10)
 
 class CustLogin(tk.Frame):
-    def validLogin(self, master):
-        #NEED IF ELSE STATEMENTS TO CHECK VALID LOGIN#
-        #self.output_label = tk.Label(self)
-        #self.output_label.pack()
-        #self.output_label.config(text= username.get() + "Login successful")
-        return lambda: master.switch_frame(CustomerHomepage)
-    
+    def validLogin(self):
+        problem = ""
+        check = 0 
+        if username.get() == "":
+            problem += "\n"
+            problem += "Please enter username"
+        else:
+            check += 1
+        if password.get() == "":
+            problem += "\n"
+            problem += "Please enter password"
+        else:
+            check += 1
+        if(problem != ""):
+            return messagebox.showerror(title="ERROR",message=problem)
+
+        check_query = "SELECT * FROM Customers WHERE CustomerID=? AND Password=?"
+        if check == 2:
+            try:
+                c.execute(check_query,(username.get(),password.get()))
+              
+                row = c.fetchone()
+                if row == None:
+                    problem +="\n"
+                    problem += "Invalid login information"
+                    messagebox.showerror(title="ERROR",message=problem)
+                else:
+                    global customerName
+                    custId = row[0]
+                    customerName = row[1]
+                    messagebox.showinfo(message="Successful login, Welcome " + customerName)
+                    self.master.switch_frame(custHome)
+            except Exception as e:
+                messagebox.showerror(title="ERROR",message="SystemERROR")
+            
     def __init__(self, master):
         global username
         global password
@@ -77,11 +105,40 @@ class CustLogin(tk.Frame):
         tk.Button(self, text='BACK' , width=20,bg="black",fg='white',command= lambda: master.switch_frame(StartPage)).pack()
     
 class AdminLogin(tk.Frame):
-    def validLogin(self,master):
-        #self.output_label = tk.Label(self)
-        #self.output_label.pack()
-        #self.output_label.config(text= username.get() + "Login successful")
-        return lambda: master.switch_frame(AdminHomepage)
+    def validLogin(self):
+        problem = ""
+        check = 0 
+        if username.get() == "":
+            problem += "\n"
+            problem += "Please enter username"
+        else:
+            check += 1
+        if password.get() == "":
+            problem += "\n"
+            problem += "Please enter password"
+        else:
+            check += 1
+        if(problem != ""):
+            return messagebox.showerror(title="ERROR",message=problem)
+
+        check_query = "SELECT * FROM Administrator WHERE AdminID=? AND Password=?"
+        if check == 2:
+            try:
+                c.execute(check_query,(username.get(),password.get()))
+              
+                row = c.fetchone()
+                if row == None:
+                    problem +="\n"
+                    problem += "Invalid login information"
+                    messagebox.showerror(title="ERROR",message=problem)
+                else:
+                    global adminName
+                    adminID = row[0]
+                    adminName = row[1]
+                    messagebox.showinfo(message="Successful login, Welcome " + adminName)
+                    self.master.switch_frame(adminHome)
+            except Exception as e:
+                messagebox.showerror(title="ERROR",message="SystemERROR")
 
     def __init__(self, master):
         global username
