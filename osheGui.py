@@ -19,11 +19,13 @@ class sqlFunc():
         sql = "INSERT INTO Customers(CustomerID, CustomerName, Address, Gender, EmailAddress, PhoneNumber, Password) VALUES" + str(val) + ";" 
         c.execute(sql)
         return "done"
+
 class App(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         self._frame = None
         self.switch_frame(StartPage)
+        self.allUserId = ()
 
     def switch_frame(self, frame_class):
         """Destroys current frame and replaces it with a new one."""
@@ -47,12 +49,63 @@ class StartPage(tk.Frame):
        
 class CustomerRegistration(tk.Frame):
     def validRegistration(self):
+        problem = ""
+        check = 0 
+        if username.get() == "":
+            problem += "\n"
+            problem += "Please enter username"
+        else:
+            if username.get() in self.master.allUserId:
+                problem += "\n"
+                problem += "Please enter another username"
+            else:
+                self.master.allUserId += (username.get(),)
+                check += 1
+        if name.get() == "":
+            problem += "\n"
+            problem += "Please enter name"
+        else:
+            check += 1
+        if add.get() == "":
+            problem += "\n"
+            problem += "Please enter address"
+        else:
+            check += 1    
+        if gender.get() == "":
+            problem += "\n"
+            problem += "Please enter gender"
+        elif gender.get() != "M" and gender.get() != "F":
+            problem += "\n"
+            problem += "Please enter M or F only"
+        else:
+            check += 1    
+        if email.get() == "":
+            problem += "\n"
+            problem += "Please enter email"
+        #elif (".com" or "@") not in email.get():
+        #    problem += "\n"
+        #    problem += "Please enter valid email address"
+        else:
+            check += 1
+        if number.get() == "":
+            problem += "\n"
+            problem += "Please enter number"
+        else:
+            check += 1    
+        if password.get() == "":
+            problem += "\n"
+            problem += "Please enter password"
+        else:
+            check += 1    
+        if(problem != ""):
+            return messagebox.showerror(title="ERROR",message=problem)
         self.output_label = tk.Label(self)
         self.output_label.pack()
         self.output_label.config(text= name.get() + "'s Registration as Customer successful")
         val = (username.get(), name.get(), add.get(), gender.get(), email.get(), number.get(), password.get())
         sql = "INSERT INTO Customers (CustomerID, CustomerName, Address, Gender, EmailAddress, PhoneNumber, Password) VALUES " + str(val) + ";"
         c.execute(sql)
+        conn.commit()
 
     def __init__(self, master):
         global username
@@ -113,6 +166,43 @@ class CustomerRegistration(tk.Frame):
 
 class AdminRegistration(tk.Frame):
     def validRegistration(self):
+        problem = ""
+        check = 0 
+        if username.get() == "":
+            problem += "\n"
+            problem += "Please enter username"
+        else:
+            if username.get() in self.master.allUserId:
+                problem += "\n"
+                problem += "Please enter another username"
+            else:
+                self.master.allUserId += (username.get(),)
+                check += 1
+        if name.get() == "":
+            problem += "\n"
+            problem += "Please enter name"
+        else:
+            check += 1
+        if gender.get() == "":
+            problem += "\n"
+            problem += "Please enter gender"
+        elif gender.get() != "M" and gender.get() != "F":
+            problem += "\n"
+            problem += "Please enter M or F as Gender only"
+        else:
+            check += 1    
+        if number.get() == "":
+            problem += "\n"
+            problem += "Please enter number"
+        else:
+            check += 1    
+        if password.get() == "":
+            problem += "\n"
+            problem += "Please enter password"
+        else:
+            check += 1    
+        if(problem != ""):
+            return messagebox.showerror(title="ERROR",message=problem)
         self.output_label = tk.Label(self)
         self.output_label.pack()
         self.output_label.config(text= name.get() + "'s Registration as Administrator successful")
