@@ -26,8 +26,8 @@ CREATE TABLE Item(
    	PurchaseDate DATE, 
     	Model VARCHAR(10) CHECK(Model IN ("Light1", "Light2", "SmartHome1", "Safe1", "Safe2", "Safe3")),
     	ProductID CHAR(3) NOT NULL,
-   	PurchaseStatus VARCHAR(6) CHECK(PurchaseStatus IN ("Sold", "Unsold")),
-    	ServiceStatus VARCHAR(30) CHECK(ServiceStatus IN ("Waiting For Approval", "In progress", "Completed")),
+   	--PurchaseStatus VARCHAR(6) CHECK(PurchaseStatus IN ("Sold", "Unsold")),
+    	--ServiceStatus VARCHAR(30) CHECK(ServiceStatus IN ("Waiting For Approval", "In progress", "Completed")),
     	--PowerSupply VARCHAR(7) Check(PowerSupply IN ("USB","Battery")),
     	--Factory VARCHAR(100) NOT NULl,
     	--Color VARCHAR(20) NOT NULL,
@@ -76,7 +76,7 @@ DROP TABLE IF EXISTS Service;
 CREATE TABLE Service(
 	AdministratorID VARCHAR(10) NOT NULL, 
 	RequestID CHAR(10) NOT NULL,
-	ServiceStatus VARCHAR(30) CHECK(ServiceStatus IN ("N/A", "Waiting for approval", "In progress", "Completed")),
+	--ServiceStatus VARCHAR(30) CHECK(ServiceStatus IN ("N/A", "Waiting for approval", "In progress", "Completed")),
 	FOREIGN KEY(AdministratorID) REFERENCES Administrator (AdministratorID),
 	FOREIGN KEY(RequestID) REFERENCES Request (RequestID)  
 );
