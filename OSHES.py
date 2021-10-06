@@ -69,6 +69,35 @@ def customerPurchaseItem(CustomerID, ItemID, PurchaseDate, PurchaseStatus):
 
     return "done"
 
+def advancedSearch(category, model, color, factory, powersupply, productionyear):
+    if category == "none":
+        category = db.Items.distinct("0.Category")
+    else:
+        category = [category]
+    if model == "none":
+        model = db.Items.distinct("0.Model")
+    else:
+        model = [model]
+    if color == "none":
+        color = db.Items.distinct("0.Color")
+    else:
+        color = [color]
+    if factory == "none":
+        factory = db.Items.distinct("0.Factory")
+    else:
+        factory = [factory]
+    if powersupply == "none":
+        powersupply = db.Items.distinct("0.PowerSupply")
+    else:
+        powersupply = [powersupply]
+    if productionyear == "none":
+        productionyear = db.Items.distinct("0.ProductionYear")
+    else:
+        productionyear = [productionyear]
+    return(db.Items.find_one({'0.Category': {'$in': category}, '0.Model': {'$in':model}, '0.Factory': {'$in':factory}, '0.PowerSupply': {'$in':powersupply}, '0.ProductionYear':{'$in':productionyear}})))
+
+
+
 #def customerRequestService() #mg
 
 #def customerPayService() #mg
