@@ -24,8 +24,9 @@ CREATE TABLE Item(
 	ItemID  CHAR(4) NOT NULL,
     	CustomerID VARCHAR(10), 
    	PurchaseDate DATE, 
-    	Model VARCHAR(10) CHECK(Model IN ("Light1", "Light2", "SmartHome1", "Safe1", "Safe2", "Safe3")),
-    	ProductID CHAR(3) NOT NULL,
+	--commented out attributes which are in MONGODB
+    	--Model VARCHAR(10) CHECK(Model IN ("Light1", "Light2", "SmartHome1", "Safe1", "Safe2", "Safe3")),
+    	--ProductID CHAR(3) NOT NULL,
    	--PurchaseStatus VARCHAR(6) CHECK(PurchaseStatus IN ("Sold", "Unsold")),
     	--ServiceStatus VARCHAR(30) CHECK(ServiceStatus IN ("Waiting For Approval", "In progress", "Completed")),
     	--PowerSupply VARCHAR(7) Check(PowerSupply IN ("USB","Battery")),
@@ -33,7 +34,7 @@ CREATE TABLE Item(
     	--Color VARCHAR(20) NOT NULL,
     	--ProductionYear CHAR(4) NOT NULL,
     	PRIMARY KEY (ItemID),
-    	FOREIGN KEY(ProductID) REFERENCES ModelType (ProductID),
+    	--FOREIGN KEY(ProductID) REFERENCES ModelType (ProductID),
     	FOREIGN KEY(CustomerID) REFERENCES Customers (CustomerID)
     );
     
