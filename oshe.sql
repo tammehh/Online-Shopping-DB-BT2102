@@ -75,7 +75,7 @@ CREATE TABLE ServiceFee(
     
 DROP TABLE IF EXISTS Service;
 CREATE TABLE Service(
-	AdministratorID VARCHAR(10) NOT NULL, 
+	AdministratorID VARCHAR(10), 
 	RequestID CHAR(10) NOT NULL,
 	--ServiceStatus VARCHAR(30) CHECK(ServiceStatus IN ("N/A", "Waiting for approval", "In progress", "Completed")),
 	FOREIGN KEY(AdministratorID) REFERENCES Administrator (AdministratorID),
