@@ -1,26 +1,29 @@
 import tkinter as tk
+from tkinter import messagebox
+from tkinter import ttk
 import sqlite3
 import json
-import pandas as pd
 import numpy as np
+import pandas as pd
+from pymongo import MongoClient
+from sqlalchemy import create_engine
 
-##connection and addAdmin##
-conn = sqlite3.connect('OSHE') 
-c = conn.cursor()
-sql = open('oshe.sql', 'r')
-sqlfile = sql.read()
-sql.close()
-sqlQueries = sqlfile.split(';')
-for query in sqlQueries:
-    c.execute(query)
-## end
-
-class SampleApp(tk.Tk):
+class sqlFunc():
+    def addAdmin(ID, name, gender, number, pw):
+        val = (ID, name, gender, number, pw)
+        sql = "INSERT INTO Administrator (AdministratorID, AdminName, Gender, PhoneNumber, Password) VALUES " + str(val) + ";"
+        c.execute(sql)
+        return "done"
+    def addCustomer(ID, name, address, gender, email, number, pw):
+        val = (ID, name, address, gender, email, number, pw)
+        sql = "INSERT INTO Customers(CustomerID, CustomerName, Address, Gender, EmailAddress, PhoneNumber, Password) VALUES" + str(val) + ";" 
+        c.execute(sql)
+        return "done"
+class App(tk.Tk):
     def __init__(self):
         tk.Tk.__init__(self)
         self._frame = None
         self.switch_frame(StartPage)
-        self.masteruser = ""
 
     def switch_frame(self, frame_class):
         """Destroys current frame and replaces it with a new one."""
@@ -78,6 +81,8 @@ class CustLogin(tk.Frame):
             except Exception as e:
                 messagebox.showerror(title="ERROR",message="SystemERROR")
             
+
+
     def __init__(self, master):
         global username
         global password
@@ -91,7 +96,6 @@ class CustLogin(tk.Frame):
         username = tk.StringVar()
         usernameEntry = tk.Entry(self,textvariable=username, font = ("bold", 10))
         usernameEntry.pack(pady=10)
-        master.masteruser = username
         
 
         passwordLabel = tk.Label(self,text = "Password: ", font = ("bold", 10))
@@ -100,8 +104,8 @@ class CustLogin(tk.Frame):
         passwordEntry = tk.Entry(self,textvariable=password, show="*", font = ("bold", 10))
         passwordEntry.pack(pady=10)
         
-        ##INCLUDED MASTER AS PARMS
-        tk.Button(self, text='LOGIN' , width=20,bg="black",fg='white',command= self.validLogin(master)).pack(pady = 10)
+
+        tk.Button(self, text='LOGIN' , width=20,bg="black",fg='white',command= self.validLogin).pack(pady = 10)
         tk.Button(self, text='BACK' , width=20,bg="black",fg='white',command= lambda: master.switch_frame(StartPage)).pack()
     
 class AdminLogin(tk.Frame):
@@ -139,6 +143,12 @@ class AdminLogin(tk.Frame):
                     self.master.switch_frame(adminHome)
             except Exception as e:
                 messagebox.showerror(title="ERROR",message="SystemERROR")
+            
+
+    def validLogin(self):
+        self.output_label = tk.Label(self)
+        self.output_label.pack()
+        self.output_label.config(text= username.get() + "Login successful")
 
     def __init__(self, master):
         global username
@@ -153,7 +163,6 @@ class AdminLogin(tk.Frame):
         username = tk.StringVar()
         usernameEntry = tk.Entry(self,textvariable=username, font = ("bold", 10))
         usernameEntry.pack(pady=10)
-        master.masteruser = username
         
 
         passwordLabel = tk.Label(self,text = "Password: ", font = ("bold", 10))
@@ -163,8 +172,42 @@ class AdminLogin(tk.Frame):
         passwordEntry.pack(pady=10)
         
 
-        tk.Button(self, text='LOGIN' , width=20,bg="black",fg='white',command= self.validLogin(master)).pack(pady = 10)
+        tk.Button(self, text='LOGIN' , width=20,bg="black",fg='white',command= self.validLogin).pack(pady = 10)
         tk.Button(self, text='BACK' , width=20,bg="black",fg='white',command= lambda: master.switch_frame(StartPage)).pack()
+
+class custHome(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
+        #headings for the page
+        welcome = "Welcome " + customerName 
+        tk.Label(self,text=welcome, width=20,font=("Bold",30),fg="white",bg="Light blue").pack()
+
+        #interactive buttons
+        tk.Button(self, text='Search/Buy products' , width=20,bg="grey",fg='white',command= lambda: master.switch_frame(CustLogin)).pack(pady=5)
+        tk.Button(self, text='Existing requests' , width=20,bg="orange",fg='white',command= lambda: master.switch_frame(AdminLogin)).pack(pady=5)
+        tk.Button(self, text='Request for service' , width=20,bg="blue",fg='white',command= lambda: master.switch_frame(PageOne)).pack(pady=5)
+        tk.Button(self, text='Cancel requests' , width=20,bg= "black",fg='white',command= lambda: master.switch_frame(PageOne)).pack(pady=5)
+        tk.Button(self, text='Payments' , width=20,bg="grey",fg='white',command= lambda: master.switch_frame(CustLogin)).pack(pady=5)
+        tk.Button(self, text='Past purchase' , width=20,bg="orange",fg='white',command= lambda: master.switch_frame(AdminLogin)).pack(pady=5)
+        tk.Button(self, text='LOGOUT' , width=20,bg="blue",fg='white',command= lambda: master.switch_frame(StartPage)).pack(pady=5)
+    def inventory(self): 
+        pass
+class adminHome(tk.Frame):
+    def __init__(self, master):
+        tk.Frame.__init__(self, master)
+        #headings for the page
+        welcome = "Welcome administrator: " +  adminName  
+        tk.Label(self,text=welcome, width=20,font=("Bold",30),fg="white",bg="Light blue").pack()
+
+        #interactive buttons
+        tk.Button(self, text='Search/Buy products' , width=20,bg="grey",fg='white',command= lambda: master.switch_frame(CustLogin)).pack(pady=5)
+        tk.Button(self, text='Existing requests' , width=20,bg="orange",fg='white',command= lambda: master.switch_frame(AdminLogin)).pack(pady=5)
+        tk.Button(self, text='Request for service' , width=20,bg="blue",fg='white',command= lambda: master.switch_frame(PageOne)).pack(pady=5)
+        tk.Button(self, text='Cancel requests' , width=20,bg= "black",fg='white',command= lambda: master.switch_frame(PageOne)).pack(pady=5)
+        tk.Button(self, text='Payments' , width=20,bg="grey",fg='white',command= lambda: master.switch_frame(CustLogin)).pack(pady=5)
+        tk.Button(self, text='Past purchase' , width=20,bg="orange",fg='white',command= lambda: master.switch_frame(AdminLogin)).pack(pady=5)
+        tk.Button(self, text='LOGOUT' , width=20,bg="blue",fg='white',command= lambda: master.switch_frame(StartPage)).pack(pady=5)       
+
         
 class CustomerRegistration(tk.Frame):
     def validRegistration(self):
@@ -277,21 +320,19 @@ class AdminRegistration(tk.Frame):
         #
         tk.Button(self, text='REGISTER' , width=20,bg="black",fg='white',command= self.validRegistration).pack(pady = 10)
         tk.Button(self, text='BACK' , width=20,bg="black",fg='white',command= lambda: master.switch_frame(StartPage)).pack()
-        
-class CustomerHomepage(tk.Frame):
-    def __init__(self, master):
-        tk.Frame.__init__(self, master)
-        self.username = master.masteruser.get()
-        tk.Label(self, text="Welcome, " + self.username + "!", width = 20, font=("bold",20)).pack()
-    
-class AdminHomepage(tk.Frame):
-    def __init__(self, master):
-        tk.Frame.__init__(self, master)
-        self.username = master.masteruser.get()
-        tk.Label(self, text="Welcome, " + self.username + "!", width = 20, font=("bold",20)).pack()
-       
+     
+
 if __name__ == "__main__":
-    app = SampleApp()
+    conn = sqlite3.connect('OSHE') 
+    c = conn.cursor()
+    sql = open('oshe.sql', 'r')
+    sqlfile = sql.read()
+    sql.close()
+    sqlQueries = sqlfile.split(';')
+    for query in sqlQueries:
+        c.execute(query)
+    sqlFunc.addCustomer("1234567809","ben","assc","M","ascac","1234","123")
+    app = App()
     app.title("OSHES System")
     # The size of the window
     app.geometry("700x400")
