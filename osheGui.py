@@ -425,19 +425,8 @@ class adminHome(tk.Frame):
         tk.Button(self, text='LOGOUT' , width=20,bg="blue",fg='white',command= lambda: master.switch_frame(StartPage)).pack(pady=5)       
 
 #NEED to add in search functions
-class searchpage():
+class searchpage(tk.Frame):
     #display result of search in seperate screen incomplete
-    def results():
-        newRoot = tk.Tk()
-        newRoot.title("SEARCH RESULTS")
-        tk.Label(newRoot, text="SEARCH RESULTS", font=("Arial",30)).grid(row=0, columnspan=3) 
-        cols = ('product category', 'model','price','warranty' ,'instock')
-        listBox = ttk.Treeview(newRoot, columns=cols, show='headings')
-        for col in cols:
-            listBox.heading(col, text=col)    
-            listBox.grid(row=1, column=0, columnspan=2)
-        closeButton = tk.Button(newRoot, text="Close", width=15, command=exit).grid(row=4, column=1
-        newRoot.mainloop()
     def __init__(self,master):
         tk.Frame.__init__(self,master)
         tk.Label(self, 
@@ -562,19 +551,7 @@ class searchpage():
         tk.Button(self, text='BACK' , width=20,bg="black",fg='white',command= lambda: master.switch_frame(custHome)).pack(pady=5)
         
 #Replace with customer search after that part is done w function, include a item id search as well
-class adminSearchPage():
-        def results():
-        newRoot = tk.Tk()
-        newRoot.title("SEARCH RESULTS")
-        tk.Label(newRoot, text="SEARCH RESULTS", font=("Arial",30)).grid(row=0, columnspan=3) 
-        cols = ('product category', 'model','price','warranty' ,'instock')
-        listBox = ttk.Treeview(newRoot, columns=cols, show='headings')
-        for col in cols:
-            listBox.heading(col, text=col)    
-            listBox.grid(row=1, column=0, columnspan=2)
-        closeButton = tk.Button(newRoot, text="Close", width=15, command=exit).grid(row=4, column=1
-        root.mainloop()
-    
+class adminSearchPage(tk.Frame):
     def __init__(self):
         root = tk.Tk()
         tk.Label(root, 
@@ -706,7 +683,7 @@ class adminSearchPage():
         itemIDEntry = tk.Entry(root,textvariable=itemID, show="*", font = ("bold", 10))
         itemIDEntry .pack(pady=10)
         
-        tk.Button(root, text='SUBMIT' , width=20,bg="black",fg='white').pack(pady=5),command=results)
+        tk.Button(root, text='SUBMIT' , width=20,bg="black",fg='white').pack(pady=5)
         root.mainloop()        
 
 
@@ -724,5 +701,5 @@ if __name__ == "__main__":
     app = App()
     app.title("OSHES System")
     # The size of the window
-    app.geometry("700x400")
+    app.geometry("700x600")
     app.mainloop()
