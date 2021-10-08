@@ -10,46 +10,90 @@ from sqlalchemy import create_engine
 
 
 
-def query_database():
-	# Create a database or connect to one that exists
-	conn = sqlite3.connect('OSHE')
+def query_database(username):
+        # Create a database or connect to one that exists
+        mongodb = MongoClient('localhost', 27017)
+        db = mongodb.OSHES #db is oshes
+        conn = sqlite3.connect('OSHE')
 
-	# Create a cursor instance
-	c = conn.cursor()
+        # Create a cursor instance
+        c = conn.cursor()
+        db = mongodb.OSHES
 
-	c.execute("SELECT ItemID, PurchaseDate FROM Item where CustomerID =?",username)
-	records = c.fetchall()
-	
-	# Add our data to the screen
-	global count
-	count = 0
-	
-	#for record in records:
-	#	print(record)
+        c.execute("SELECT ItemID, PurchaseDate FROM Item where CustomerID = ? ORDER BY ItemID",(username,))
+        records = c.fetchall()
+        # Add our data to the screen
+        global count
+        count = 0
+
+        #for record in records:
+        #	print(record)
+
+        for record in records:
+                itemID = record[0]
+                cat = db.Items.find_one({"0.ItemID": itemID})['0']['Category']
+                model = db.Items.find_one({"0.ItemID": ItemID})['0']['Model']
+                price = db.Products.find_one({"0.Model": model})['0']['Price ($)']
+                colour = db.Items.find_one({"0.ItemID": ItemID})['0']['Color']
+                factory = db.Items.find_one({"0.ItemID": ItemID})['0']['Factory']
+                power = db.Items.find_one({"0.ItemID": ItemID})['0']['PowerSupply']
+                py = db.Items.find_one({"0.ItemID": ItemID})['0']['ProductionYear']
+                war = db.Products.find_one({"0.Model": model})['0']['Warranty (months)']
+                ss = db.Items.find_one({"0.ItemID": ItemID})['0']['ServiceStatus']
+                if count % 2 == 0:
+                        my_tree.insert(parent='', index='end', iid=count, text='', values=(record[0], cat, model, price, colour, factory, power, py, war,ss,record[1]), tags=('evenrow',))
+                else:
+                        my_tree.insert(parent='', index='end', iid=count, text='', values=(record[0], cat, model,price, colour, factory,power, py, war,ss,record[1]), tags=('oddrow',))
+                # increment counter
+                count += 1
 
 
-	for record in records:
-		if count % 2 == 0:
-			my_tree.insert(parent='', index='end', iid=count, text='', values=(record[1], record[2], record[0], record[4], record[5], record[6], record[7]), tags=('evenrow',))
-		else:
-			my_tree.insert(parent='', index='end', iid=count, text='', values=(record[1], record[2], record[0], record[4], record[5], record[6], record[7]), tags=('oddrow',))
-		# increment counter
-		count += 1
+        # Commit changes
+        conn.commit()
 
+        # Close our connection
+        conn.close()
+        requestCount = 1
+#need warrantyEffective function code
+def customerRequestService(CustomerID, ItemID):
+    global requestCount
+    if (warrantyEffective(ItemID)):
+        val = (requestCount, CustomerID, ItemID, "Submitted", datetime.date.today().strftime('%Y-%m-%d'))
+        sql = "INSERT INTO Request(RequestID, CustomerID, ItemID, RequestStatus, RequestDate) VALUES" + str(val) + ";"
+        c.execute(sql)
 
-	# Commit changes
-	conn.commit()
+    else:
+        val = (requestCount, CustomerID, ItemID, "Submitted and Waiting for payment",
+               datetime.date.today().strftime('%Y-%m-%d'))
+        sql = "INSERT INTO Request(RequestID, CustomerID, ItemID, RequestStatus, RequestDate) VALUES" + str(val) + ";"
+        c.execute(sql)
 
-	# Close our connection
-	conn.close()
+        # get cost of item
+        model = db.Items.find_one({"0.ItemID": ItemID})['0']['Model']
+        cost = db.Products.find_one({"0.Model": model})['0']['Cost ($)']
+        ServiceFee = 40 + 0.20 * cost
 
-def custTable():
+        # insert into ServiceFee table
+        val = (CustomerID, requestCount, ServiceFee, None , datetime.date.today())
+        # sql = "INSERT INTO ServiceFee(CustomerID, RequestID, ServiceFee, SettlementDate, CreationDate) VALUES" + str(val) + ";"
+        sql = "INSERT INTO ServiceFee(CustomerID, RequestID, ServiceFee, SettlementDate, CreationDate) VALUES (?, ?, ?, ?, ?)"
+        c.execute(sql, val)
+
+        sql = "SELECT ServiceFee FROM ServiceFee WHERE CustomerID = ?"
+        data = (CustomerID,)
+        c.execute(sql, data)
+
+    requestCount += 1
+    return "done"
+def custTable(username):
     #initializing screen
     root = Tk()
     root.title('Past purchases')
     root.geometry("1000x500")
-    style = ttk.Style()
 
+    conn = sqlite3.connect('OSHE')
+    
+    style = ttk.Style()
     style.theme_use('default')
     style.configure("Treeview",
 	background="#D3D3D3",
@@ -189,14 +233,13 @@ def custTable():
     button_frame = LabelFrame(root, text="")
     button_frame.pack(fill="x", expand="yes", padx=20)
     
-    update_button = Button(button_frame, text="Request service")
+    update_button = Button(button_frame, text="Request service",command=lambda: customerRequestService(username,itemId_entry.get()))
     update_button.grid(row=0, column=0, padx=10, pady=10)
 
     select_record_button = Button(button_frame, text="Clear Entry Boxes", command=clear_entries)
     select_record_button.grid(row=0, column=7, padx=10, pady=10)
 
     # Bind the treeview
-    #my_tree.bind("", select_record)
-    query_database()
     
-#custTable()
+
+    query_database(username)
