@@ -77,7 +77,7 @@ DROP TABLE IF EXISTS Service;
 CREATE TABLE Service(
 	AdministratorID VARCHAR(10), 
 	RequestID CHAR(10) NOT NULL,
-	--ServiceStatus VARCHAR(30) CHECK(ServiceStatus IN ("N/A", "Waiting for approval", "In progress", "Completed")),
+	ServiceStatus VARCHAR(30) CHECK(ServiceStatus IN ("N/A", "Waiting for approval", "In progress", "Completed")),
 	FOREIGN KEY(AdministratorID) REFERENCES Administrator (AdministratorID),
 	FOREIGN KEY(RequestID) REFERENCES Request (RequestID)  
 );
