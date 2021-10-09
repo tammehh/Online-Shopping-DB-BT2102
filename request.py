@@ -10,10 +10,8 @@ from sqlalchemy import create_engine
 
 
 
-def query_database(username):
-        conn = sqlite3.connect('oshes')
-        c = conn.cursor()
-        sql = "SELECT Request.RequestID, Request.ItemID, Request.RequestStatus, ServiceFee.ServiceFee ,ServiceFee.SettlementDate From Request JOIN ServiceFee ON  Request.RequestID = ServiceFee.RequestID WHERE Request.CustomerID ='{username}'"
+def query_database(username,my_tree):
+        sql = "SELECT s.RequestID, s.ServiceStatus,r.CustomerID, r.ItemID, r.RequestStatus From Service s JOIN Request r ON  s.RequestID = r.RequestID"
         c.execute(sql)
         Records = c.fetchall()
 
@@ -27,9 +25,9 @@ def query_database(username):
 
         for record in Records:
                 if count % 2 == 0:
-                        my_tree.insert(parent='', index='end', iid=count, text='', values=(record[0], record[1], record[2], record[3], record[4], record[5]), tags=('evenrow',))
+                        my_tree.insert(parent='', index='end', iid=count, text='', values=(record[0], record[1], record[2], record[3]), tags=('evenrow',))
                 else:
-                        my_tree.insert(parent='', index='end', iid=count, text='', values=(record[0], record[1], record[2], record[3], record[4], record[5]), tags=('oddrow',))
+                        my_tree.insert(parent='', index='end', iid=count, text='', values=(record[0], record[1], record[2], record[3]), tags=('oddrow',))
                 # increment counter
                 count += 1
 
@@ -38,7 +36,7 @@ def query_database(username):
         conn.commit()
 
 
-def serviceTable(*username):
+def serviceTable(username):
     #initializing screen
     root = Tk()
     root.title('Services')
@@ -160,8 +158,7 @@ def serviceTable(*username):
             values = my_tree.item(selected, 'values')
             
             itemId = values[0]
-            warranty = values[8]
-            
+  
             # outputs to entry boxes
             reqId_entry.insert(0, values[0])
             itemId_entry.insert(0, values[1])
@@ -205,7 +202,7 @@ def serviceTable(*username):
     def customerCancelRequest(RequestID):
             conn = sqlite3.connect('OSHE')
             c = conn.cursor()
-            sql = "UPDATE Request SET RequestStatus = ‘Cancelled’ WHERE RequestID = ?"
+            sql = "UPDATE Request SET RequestStatus = 'Cancelled' WHERE RequestID = ?"
             data = (RequestID,)
             c.execute(sql, data)
             conn.commit()
