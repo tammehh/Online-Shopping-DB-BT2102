@@ -96,8 +96,60 @@ def advancedSearch(category, model, color, factory, powersupply, productionyear)
         productionyear = [productionyear]
     return(db.Items.find_one({'0.Category': {'$in': category}, '0.Model': {'$in':model}, '0.Factory': {'$in':factory}, '0.PowerSupply': {'$in':powersupply}, '0.ProductionYear':{'$in':productionyear}})))
 
+def getNumberOfItemsSoldByModel():
+    models = ['Light1', 'Light2', 'SmartHome1', 'Safe1', 'Safe2', 'Safe3']
+    oshe_db = mongodb["OSHES"]
+    items = oshe_db["Items"]
 
+    for model in models:
+        counts_sold = items.count_documents({'0.Model': model, '0.PurchaseStatus': "Sold"})
+        print(f"{model}: " + str(counts_sold))
+        
+#still abit buggy for this
+def initializeTable():
+    models = ['Light1', 'Light2', 'SmartHome1', 'Safe1', 'Safe2', 'Safe3']
+    oshe_db = mongodb["OSHES"]
+    items = oshe_db["Items"]
+    lst = []
 
+    for eachmodel in models:
+        counts_sold = items.count_documents({'0.Model': eachmodel, '0.PurchaseStatus': "Sold"})
+        counts_unsold = items.count_documents({'0.Model': eachmodel, '0.PurchaseStatus': "Unsold"})
+        lst.append([eachmodel, counts_sold, counts_unsold])
+        print(tabulate(lst, headers = ["IID", "Sold", "Unsold"]))
+        
+def customerPayService(RequestID, ItemID):
+    sql = "UPDATE Request SET RequestStatus = 'In progress' WHERE RequestID = ?"
+    data = (RequestID,)
+    c.execute(sql, data)
+    conn.commit()
+
+    myquery = { "0.ItemID": ItemID }
+    newvalues = { "$set": { "0.ServiceStatus": "Waiting for approval" } }
+    db.Items.update_one(myquery, newvalues)
+
+    val =("", RequestID, "Waiting for approval")
+    sql = "INSERT INTO Service(AdministratorID, RequestID, ServiceStatus)VALUES" + str(val) + ";"
+    c.execute(sql)
+
+    sql = "UPDATE ServiceFee SET SettlementDate = CURRENT_DATE WHERE RequestID = ?"
+    data = (RequestID,)
+    c.execute(sql, data)
+    conn.commit()
+
+    return "done"
+
+def getItemsUnderService():
+    sql = "SELECT COUNT(ServiceStatus) FROM Service WHERE ServiceStatus != 'Completed'"
+    c.execute(sql)
+    result = c.fetchall()[0][0]
+    print(result)
+    
+def allCustomersWithUnpaidServiceFee():
+    sql = "SELECT COUNT(DISTINCT CustomerID) FROM Request WHERE RequestStatus == 'Submitted and Waiting for payment'"
+    c.execute(sql)
+    result = c.fetchall()[0][0]
+    print(result)
 #def customerRequestService() #mg
 
 #def customerPayService() #mg
