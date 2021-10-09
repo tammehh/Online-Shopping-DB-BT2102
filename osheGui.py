@@ -9,6 +9,8 @@ from pymongo import MongoClient
 from sqlalchemy import create_engine
 #Inventory table
 from custTable import *
+from request import *
+from adminFunc import *
 
 class sqlFunc():
     def addAdmin(ID, name, gender, number, pw):
