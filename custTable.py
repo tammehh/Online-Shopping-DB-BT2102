@@ -27,9 +27,9 @@ def query_database(username,my_tree):
         global count
         count = 0
         
-
-        for record in records:
-        	print(record)
+	#USed to debug ur queries
+        #for record in records:
+        	#print(record)
 
         for record in records:
                 ItemID = record[0]
