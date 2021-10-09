@@ -7,10 +7,11 @@ import numpy as np
 import pandas as pd
 from pymongo import MongoClient
 from sqlalchemy import create_engine
+#file containing the mongo and sql functions
+from oshes import *
 
 
-
-def query_database(username):
+def query_database(username,my_tree):
         # Create a database or connect to one that exists
         mongodb = MongoClient('localhost', 27017)
         db = mongodb.OSHES #db is oshes
@@ -20,18 +21,19 @@ def query_database(username):
         c = conn.cursor()
         db = mongodb.OSHES
 
-        c.execute("SELECT ItemID, PurchaseDate FROM Item where CustomerID = ? ORDER BY ItemID",(username,))
+        c.execute("SELECT ItemID, PurchaseDate FROM Item where CustomerID = ?",(username,))
         records = c.fetchall()
         # Add our data to the screen
         global count
         count = 0
-
-        #for record in records:
-        #	print(record)
+        
 
         for record in records:
-                itemID = record[0]
-                cat = db.Items.find_one({"0.ItemID": itemID})['0']['Category']
+        	print(record)
+
+        for record in records:
+                ItemID = record[0]
+                cat = db.Items.find_one({"0.ItemID": ItemID})['0']['Category']
                 model = db.Items.find_one({"0.ItemID": ItemID})['0']['Model']
                 price = db.Products.find_one({"0.Model": model})['0']['Price ($)']
                 colour = db.Items.find_one({"0.ItemID": ItemID})['0']['Color']
@@ -57,6 +59,7 @@ def query_database(username):
 #need warrantyEffective function code
 def customerRequestService(CustomerID, ItemID):
     global requestCount
+    pass
     if (warrantyEffective(ItemID)):
         val = (requestCount, CustomerID, ItemID, "Submitted", datetime.date.today().strftime('%Y-%m-%d'))
         sql = "INSERT INTO Request(RequestID, CustomerID, ItemID, RequestStatus, RequestDate) VALUES" + str(val) + ";"
@@ -216,6 +219,7 @@ def custTable(username):
 
 
             itemId = values[0]
+            print(itemId)
             warranty = values[8]
             
             # outpus to entry boxes
@@ -240,6 +244,21 @@ def custTable(username):
     select_record_button.grid(row=0, column=7, padx=10, pady=10)
 
     # Bind the treeview
-    
+    my_tree.bind("<ButtonRelease-1>",select_record)
 
-    query_database(username)
+    query_database(username,my_tree)
+
+#TEST CASES
+conn = sqlite3.connect('OSHE') 
+c = conn.cursor()
+sql = open('oshe.sql', 'r')
+sqlfile = sql.read()
+sql.close()
+sqlQueries = sqlfile.split(';')
+for query in sqlQueries:
+    c.execute(query)
+customerPurchaseItem("1234567890","1001","01012020","Unsold")
+customerPurchaseItem("1234567890","1002","01012020","Unsold")
+customerPurchaseItem("1234567890","1003","01012020","Unsold")
+customerPurchaseItem("1234567893","1004","01012020","Unsold")
+custTable("1234567890")
