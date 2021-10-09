@@ -8,8 +8,33 @@ import pandas as pd
 from pymongo import MongoClient
 from sqlalchemy import create_engine
 
-def inventoryfunct():
-    pass
+def inventoryfunct(my_tree):
+    # Set up connection to mongoDB and DB object, instantiate a lst to store [model, count_sold, count_unsold]
+    mongodb = MongoClient('localhost', 27017)
+    db = mongodb.OSHES
+    items = db["Items"]
+    lst = []
+
+    # Populate lst with [model, count_sold, count_unsold]
+    models = ['Light1', 'Light2', 'SmartHome1', 'Safe1', 'Safe2', 'Safe3']
+    for model in models:
+        counts_sold = items.count_documents({'0.Model': model, '0.PurchaseStatus': "Sold"})
+        counts_unsold = items.count_documents({'0.Model': model, '0.PurchaseStatus': "Unsold"})
+        lst.append([model, counts_sold, counts_unsold])
+
+    # Insert/Populate table in GUI using lst.
+    global row_num
+    row_num = 0
+    for row in lst:
+        if row_num % 2 == 0:
+            my_tree.insert(parent='', index='end', iid=row_num, text='',
+                           values=(row[0], row[1], row[2]), tags=('evenrow',))
+        else:
+            my_tree.insert(parent='', index='end', iid=row_num, text='',
+                           values=(row[0], row[1], row[2]), tags=('oddrow',))
+            # increment counter
+        row_num += 1
+
 #add in the funct to get sold and unsold
 def itemSold():
     #initializing screen
@@ -63,8 +88,8 @@ def itemSold():
     my_tree.tag_configure('oddrow', background="white")
     my_tree.tag_configure('evenrow', background="lightblue")                  
         
-    inventoryfunct()
-#itemSold()
+    inventoryfunct(my_tree)
+    root.mainloop()
 
 def query_database(username):
         conn = sqlite3.connect('oshes')
