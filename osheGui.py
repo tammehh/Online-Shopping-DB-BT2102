@@ -416,13 +416,11 @@ class adminHome(tk.Frame):
         tk.Label(self,text=welcome, width=20,font=("Bold",30),fg="white",bg="Light blue").pack()
 
         #interactive buttons
-        tk.Button(self, text='Search/Buy products' , width=20,bg="grey",fg='white',command= searchpage).pack(pady=5)
-        tk.Button(self, text='Existing requests' , width=20,bg="orange",fg='white',command= lambda: master.switch_frame(AdminLogin)).pack(pady=5)
-        tk.Button(self, text='Request for service' , width=20,bg="blue",fg='white',command= lambda: master.switch_frame(PageOne)).pack(pady=5)
-        tk.Button(self, text='Cancel requests' , width=20,bg= "black",fg='white',command= lambda: master.switch_frame(PageOne)).pack(pady=5)
-        tk.Button(self, text='Payments' , width=20,bg="grey",fg='white',command= lambda: master.switch_frame(CustLogin)).pack(pady=5)
-        tk.Button(self, text='Past purchase' , width=20,bg="orange",fg='white',command= lambda: master.switch_frame(AdminLogin)).pack(pady=5)
-        tk.Button(self, text='LOGOUT' , width=20,bg="blue",fg='white',command= lambda: master.switch_frame(StartPage)).pack(pady=5)       
+        tk.Button(self, text='Search products' , width=20,bg="grey",fg='white',command=lambda: master.switch_frame(adminSearchPage)).pack(pady=5)
+        tk.Button(self, text='Inventory' , width=20,bg="orange",fg='white',command= itemSold).pack(pady=5)
+        tk.Button(self, text='Current Request' , width=20,bg="blue",fg='white',command= adminServiceTable).pack(pady=5)
+        tk.Button(self, text='Unpaid Customers' , width=20,bg= "black",fg='white',command= unpaidCust).pack(pady=5)
+  
 
 #NEED to add in search functions
 class searchpage(tk.Frame):
@@ -551,16 +549,15 @@ class searchpage(tk.Frame):
         tk.Button(self, text='BACK' , width=20,bg="black",fg='white',command= lambda: master.switch_frame(custHome)).pack(pady=5)
         
 #Replace with customer search after that part is done w function, include a item id search as well
-class adminSearchPage(tk.Frame):
-    def __init__(self):
-        root = tk.Tk()
-        tk.Label(root, 
+    def __init__(self,master):
+        tk.Frame.__init__(self,master)
+        tk.Label(self, 
                  text="""Simple Search""",
                  justify = tk.LEFT,
                  padx = 20,font="bold").pack()
 
 
-        tk.Label(root, 
+        tk.Label(self, 
                  text="""Category:""",
                  justify = tk.LEFT,
                  padx = 20).pack()
@@ -569,13 +566,13 @@ class adminSearchPage(tk.Frame):
         "None","Lights", "Locks"
         ] 
 
-        category = tk.StringVar(root)
+        category = tk.StringVar(self)
         category.set(OPTIONScat[0]) # default value
 
-        catOption = tk.OptionMenu(root, category, *OPTIONScat)
+        catOption = tk.OptionMenu(self, category, *OPTIONScat)
         catOption.pack()
 
-        tk.Label(root, 
+        tk.Label(self, 
                  text="""Model:""",
                  justify = tk.LEFT,
                  padx = 20).pack()
@@ -584,19 +581,19 @@ class adminSearchPage(tk.Frame):
         "None","Light1", "Light2", "SmartHome1","Safe1", "Safe2", "Safe3"
         ] 
 
-        model = tk.StringVar(root)
+        model = tk.StringVar(self)
         model.set(OPTIONSm[0]) # default value
 
-        modelOption = tk.OptionMenu(root, model, *OPTIONSm)
+        modelOption = tk.OptionMenu(self, model, *OPTIONSm)
         modelOption.pack()
 
 
-        tk.Label(root, 
+        tk.Label(self, 
                  text="""Advanced Search""",
                  justify = tk.LEFT,
                  padx = 20,font="bold").pack()
 
-        tk.Label(root, 
+        tk.Label(self, 
                  text="""price:""",
                  justify = tk.LEFT,
                  padx = 20).pack()
@@ -608,14 +605,14 @@ class adminSearchPage(tk.Frame):
         "200-300"
         ] 
 
-        price = tk.StringVar(root)
+        price = tk.StringVar(self)
         price.set(OPTIONS[0]) # default value
 
-        priceOption = tk.OptionMenu(root, price, *OPTIONS)
+        priceOption = tk.OptionMenu(self, price, *OPTIONS)
         priceOption .pack()
 
         #colour
-        tk.Label(root, 
+        tk.Label(self, 
                  text="""colour:""",
                  justify = tk.LEFT,
                  padx = 20).pack()
@@ -624,14 +621,14 @@ class adminSearchPage(tk.Frame):
          "None", "Blue","Yellow", "Green", "Black"
         ] 
 
-        col = tk.StringVar(root)
+        col = tk.StringVar(self)
         col.set(OPTIONSc[0]) # default value
 
-        colOption = tk.OptionMenu(root, col, *OPTIONSc)
+        colOption = tk.OptionMenu(self, col, *OPTIONSc)
         colOption .pack()
 
         #Factory
-        tk.Label(root, 
+        tk.Label(self, 
                  text="""factory:""",
                  justify = tk.LEFT,
                  padx = 20).pack()
@@ -640,14 +637,14 @@ class adminSearchPage(tk.Frame):
          "None", "Malaysia", "China", "Philippines"
         ] 
 
-        fac = tk.StringVar(root)
+        fac = tk.StringVar(self)
         fac.set(OPTIONSf[0]) # default value
 
-        facOption = tk.OptionMenu(root, fac, *OPTIONSf)
+        facOption = tk.OptionMenu(self, fac, *OPTIONSf)
         facOption .pack()
 
         #power supply option
-        tk.Label(root, 
+        tk.Label(self, 
                  text="""Power supply:""",
                  justify = tk.LEFT,
                  padx = 20).pack()
@@ -656,14 +653,14 @@ class adminSearchPage(tk.Frame):
          "None", "Battery", "USB"
         ] 
 
-        ps = tk.StringVar(root)
+        ps = tk.StringVar(self)
         ps.set(OPTIONSp[0]) # default value
 
-        psOption = tk.OptionMenu(root, ps, *OPTIONSp)
+        psOption = tk.OptionMenu(self, ps, *OPTIONSp)
         psOption .pack()
 
         #Production year
-        tk.Label(root, 
+        tk.Label(self, 
                  text="""Production Year:""",
                  justify = tk.LEFT,
                  padx = 20).pack()
@@ -672,20 +669,19 @@ class adminSearchPage(tk.Frame):
          "None", "2014", "2015","2016", "2017", "2018", "2019", "2020"
         ] 
 
-        py = tk.StringVar(root)
+        py = tk.StringVar(self)
         py.set(OPTIONSpy[0]) # default value
 
-        pyOption = tk.OptionMenu(root, py, *OPTIONSpy)
+        pyOption = tk.OptionMenu(self, py, *OPTIONSpy)
         pyOption .pack()
 
-        tk.Label(root,text = "Item ID ", font = ("bold", 10),justify = tk.LEFT).pack()
-        itemID = tk.StringVar(root)
-        itemIDEntry = tk.Entry(root,textvariable=itemID, show="*", font = ("bold", 10))
+        tk.Label(self,text = "Item ID ", font = ("bold", 10),justify = tk.LEFT).pack()
+        itemID = tk.StringVar(self)
+        itemIDEntry = tk.Entry(self,textvariable=itemID, show="*", font = ("bold", 10))
         itemIDEntry .pack(pady=10)
         
-        tk.Button(root, text='SUBMIT' , width=20,bg="black",fg='white').pack(pady=5)
-        root.mainloop()        
-
+        tk.Button(self, text='SUBMIT' , width=20,bg="black",fg='white').pack(pady=5)
+        tk.Button(self, text='BACK' , width=20,bg="black",fg='white',command= lambda: master.switch_frame(adminHome)).pack(pady=5)
 
                                                                                     
 if __name__ == "__main__":
