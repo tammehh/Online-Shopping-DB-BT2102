@@ -198,6 +198,7 @@ def serviceTable(*username):
             sd_entry.delete(0, END)
             rd_entry.delete(0, END)
             sf_entry.delete(0,END)
+	    conn.close()
 
             return "done"
 
@@ -215,6 +216,7 @@ def serviceTable(*username):
             sd_entry.delete(0, END)
             rd_entry.delete(0, END)
             sf_entry.delete(0,END)
+	    conn.close()
 
             return "Request Cancelled."
 
