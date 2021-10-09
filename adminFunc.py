@@ -91,9 +91,7 @@ def itemSold():
     inventoryfunct(my_tree)
     root.mainloop()
 
-def query_database(username):
-        conn = sqlite3.connect('oshes')
-        c = conn.cursor()
+def query_database(my_tree):
         sql = "SELECT s.RequestID, s.ServiceStatus,r.CustomerID, r.ItemID, r.RequestStatus From Service s JOIN Request r ON  s.RequestID = r.RequestID"
         c.execute(sql)
         Records = c.fetchall()
@@ -119,7 +117,7 @@ def query_database(username):
         conn.commit()
 
 
-def adminServiceTable(*username):
+def adminServiceTable():
     #initializing screen
     root = Tk()
     root.title('adminServices')
@@ -245,6 +243,7 @@ def adminServiceTable(*username):
             itemId_entry.insert(0, values[4])
             rs_entry.insert(0, values[5])
 
+	#NEED TO ADD IN
     def adminApproveRequest(RequestID):
         pass
 
@@ -269,11 +268,13 @@ def adminServiceTable(*username):
     clear_record_button.grid(row=0, column=7, padx=10, pady=10)
 
     # Bind the treeview
-    #my_tree.bind("", select_record)
-    query_database(username)
+    my_tree.bind("<ButtonRelease-1>", select_record)
+    query_database(my_tree)
+    root.mainloop()
     
 #adminServiceTable()
 
+#ADD IN FUNCTION TO FIND UNPAID CUSTOMER SAME AS Inventoryfunc
 def unpaidCustomer():
         conn = sqlite3.connect('oshes')
         c = conn.cursor()
@@ -301,7 +302,7 @@ def unpaidCustomer():
         # Commit changes
         conn.commit()
     
-#add in the funct to get sold and unsold
+
 def unpaidCust():
     #initializing screen
     root = Tk()
