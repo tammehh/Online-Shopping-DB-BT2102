@@ -7,6 +7,8 @@ import numpy as np
 import pandas as pd
 from pymongo import MongoClient
 from sqlalchemy import create_engine
+from tkinter import messagebox
+from datetime import date
 
 def inventoryfunct(my_tree):
     # Set up connection to mongoDB and DB object, instantiate a lst to store [model, count_sold, count_unsold]
@@ -34,7 +36,8 @@ def inventoryfunct(my_tree):
                            values=(row[0], row[1], row[2]), tags=('oddrow',))
             # increment counter
         row_num += 1
-
+    
+    
 #add in the funct to get sold and unsold
 def itemSold():
     #initializing screen
@@ -89,10 +92,13 @@ def itemSold():
     my_tree.tag_configure('evenrow', background="lightblue")                  
         
     inventoryfunct(my_tree)
-    root.mainloop()
 
-def query_database(my_tree):
-        sql = "SELECT s.RequestID, s.ServiceStatus,r.CustomerID, r.ItemID, r.RequestStatus From Service s JOIN Request r ON  s.RequestID = r.RequestID"
+#itemSold()
+
+def query_database(username,my_tree):
+        conn = sqlite3.connect('oshes')
+        c = conn.cursor()
+        sql = "SELECT  Distinct s.RequestID, s.ServiceStatus,r.CustomerID, r.ItemID, r.RequestStatus From Service s JOIN Request r ON  s.RequestID = r.RequestID"
         c.execute(sql)
         Records = c.fetchall()
 
@@ -106,18 +112,19 @@ def query_database(my_tree):
 
         for record in Records:
                 if count % 2 == 0:
-                        my_tree.insert(parent='', index='end', iid=count, text='', values=(record[0], record[1], record[2], record[3]), tags=('evenrow',))
+                        my_tree.insert(parent='', index='end', iid=count, text='', values=(record[0], record[1], record[2], record[3],record[4]), tags=('evenrow',))
                 else:
-                        my_tree.insert(parent='', index='end', iid=count, text='', values=(record[0], record[1], record[2], record[3]), tags=('oddrow',))
+                        my_tree.insert(parent='', index='end', iid=count, text='', values=(record[0], record[1], record[2], record[3],record[4]), tags=('oddrow',))
                 # increment counter
                 count += 1
 
 
         # Commit changes
         conn.commit()
+        conn.close()
 
 
-def adminServiceTable():
+def adminServiceTable(username):
     #initializing screen
     root = Tk()
     root.title('adminServices')
@@ -212,7 +219,6 @@ def adminServiceTable():
             reqId_entry.delete(0, END)
             ss_entry.delete(0, END)
             cID_entry.delete(0, END)
-            iid_entry.delete(0, END)
             rs_entry.delete(0,END)
             
             
@@ -222,7 +228,6 @@ def adminServiceTable():
             reqId_entry.delete(0, END)
             ss_entry.delete(0, END)
             cID_entry.delete(0, END)
-            iid_entry.delete(0, END)
             rs_entry.delete(0,END)
             
 
@@ -232,36 +237,85 @@ def adminServiceTable():
             values = my_tree.item(selected, 'values')
             
             itemId = values[0]
-            warranty = values[8]
             
             # outputs to entry boxes
             reqId_entry.insert(0, values[0])
-            itemId_entry.insert(0, values[1])
-            ss_entry.insert(0, values[2])
-            cID_entry.insert(0,values[3])
+            itemId_entry.insert(0, values[3])
+            ss_entry.insert(0, values[1])
+            cID_entry.insert(0,values[2])
+            rs_entry.insert(0, values[4])
+ 
+    def administratorApprove(AdministratorID,RequestID, ItemID):
+        if(rs_entry.get() == "Approved" or rs_entry_entry == "Completed"):
+            return messagebox.showerror(title="ERROR",message="Service has already been approved/Completed")
+        selected = my_tree.focus()
+        mongodb = MongoClient('localhost', 27017)
+        db = mongodb.OSHES
+        conn = sqlite3.connect('oshes')
+        c = conn.cursor()
+        sql = "UPDATE Request SET RequestStatus = 'Approved' WHERE RequestID = ?"
+        data = (RequestID,)
+        c.execute(sql, data)
+        conn.commit()
             
-            itemId_entry.insert(0, values[4])
-            rs_entry.insert(0, values[5])
+        sql = "UPDATE Service SET ServiceStatus = 'In progress' WHERE RequestID = ?"
+        data = (RequestID,)
+        c.execute(sql, data)
+        conn.commit()
+            
+        sql = "UPDATE Service SET AdministratorID = ? WHERE RequestID = ?"
+        data = (AdministratorID, RequestID,)
+        c.execute(sql, data)
+        conn.commit()
 
-	#NEED TO ADD IN
-    def adminApproveRequest(RequestID):
-        pass
+        myquery = { "0.ItemID": ItemID }
+        newvalues = { "$set": { "0.ServiceStatus": "In progress"} }
+        db.Items.update_one(myquery, newvalues))
 
-    def adminServiceRequest(RequestID):
-        pass
+        my_tree.item(selected, text="", values=(reqId_entry.get(),"In progress",cID_entry.get(),itemId_entry.get(),"Approved"))  
+        itemId_entry.delete(0, END)
+        reqId_entry.delete(0, END)
+        ss_entry.delete(0, END)
+        cID_entry.delete(0, END)
+        rs_entry.delete(0,END) 
+        
+        return "done"
+
+    def administratorCompleteService(RequestID, ItemID):
+        if(rs_entry.get() == "Completed"):
+            return messagebox.showerror(title="ERROR",message="Service has already been completed")
+        selected = my_tree.focus()
+        mongodb = MongoClient('localhost', 27017)
+        db = mongodb.OSHES
+        conn = sqlite3.connect('oshes')
+        c = conn.cursor()        
+        sql = "UPDATE Request SET RequestStatus = 'Completed' WHERE RequestID = ?"
+        data = (RequestID,)
+        c.execute(sql, data)
+        conn.commit()
+            
+        myquery = { "0.ItemID": ItemID }
+        newvalues = { "$set": { "0.ServiceStatus": "Completed"} }
+        db.Items.update_one(myquery, newvalues)
+        my_tree.item(selected, text="", values=(reqId_entry.get(),"Completed",cID_entry.get(),itemId_entry.get(),"Completed"))
+        itemId_entry.delete(0, END)
+        reqId_entry.delete(0, END)
+        ss_entry.delete(0, END)
+        cID_entry.delete(0, END)
+        rs_entry.delete(0,END) 
+           
+        return "done"
 
                 
-        
-
 
     #buttons
     button_frame = LabelFrame(root, text="")
     button_frame.pack(fill="x", expand="yes", padx=20)
     
-    cancel_button = Button(button_frame, text="Approve request", command=lambda:adminApproveRequest(reqId_entry.get()))
+    cancel_button = Button(button_frame, text="Approve request", command=lambda:administratorApprove(username,reqId_entry.get(),itemId_entry.get()))
     cancel_button.grid(row=0, column=0, padx=10, pady=10)
 
-    pay_button = Button(button_frame, text="Service request", command=lambda:adminServiceRequest(reqId_entry.get()))
+    pay_button = Button(button_frame, text="Service request", command=lambda:administratorCompleteService(reqId_entry.get(),itemId_entry.get()))
     pay_button.grid(row=0, column=5, padx=10, pady=10)
     
     clear_record_button = Button(button_frame, text="Clear Entry Boxes", command=clear_entries)
@@ -269,32 +323,27 @@ def adminServiceTable():
 
     # Bind the treeview
     my_tree.bind("<ButtonRelease-1>", select_record)
-    query_database(my_tree)
-    root.mainloop()
-    
-#adminServiceTable()
+    query_database(username,my_tree)
+#testing treeview
 
-#ADD IN FUNCTION TO FIND UNPAID CUSTOMER SAME AS Inventoryfunc
-def unpaidCustomer():
-        conn = sqlite3.connect('oshes')
-        c = conn.cursor()
+#adminServiceTable("Admin123")
+
+def unpaidCustomer(my_tree):
         sql = "SELECT Request.CustomerID, Request.RequestID, ServiceFee.ServiceFee ,ServiceFee.SettlementDate From Request JOIN ServiceFee ON  Request.RequestID = ServiceFee.RequestID WHERE Request.RequestStatus = 'Submitted and Waiting for payment'"
         c.execute(sql)
-        Records = c.fetchall()
-
         # Add our data to the screen
         global count
         count = 0
-
+        records = c.fetchall()
         #for record in records:
-        #	print(record)
+        	#print(record)
 
 
-        for record in Records:
+        for record in records:
                 if count % 2 == 0:
-                        my_tree.insert(parent='', index='end', iid=count, text='', values=(record[0], record[1], record[2]), tags=('evenrow',))
+                        my_tree.insert(parent='', index='end', iid=count, text='', values=(record[0],record[1],record[2],record[3]), tags=('evenrow',))
                 else:
-                        my_tree.insert(parent='', index='end', iid=count, text='', values=(record[0], record[1], record[2]), tags=('oddrow',))
+                        my_tree.insert(parent='', index='end', iid=count, text='', values=(record[0],record[1],record[2],record[3]), tags=('oddrow',))
                 # increment counter
                 count += 1
 
@@ -302,7 +351,7 @@ def unpaidCustomer():
         # Commit changes
         conn.commit()
     
-
+#add in the funct to get sold and unsold
 def unpaidCust():
     #initializing screen
     root = Tk()
@@ -358,7 +407,15 @@ def unpaidCust():
     my_tree.tag_configure('oddrow', background="white")
     my_tree.tag_configure('evenrow', background="lightblue")                  
         
-    unpaidCustomer()
-
+    unpaidCustomer(my_tree)
 #unpaidCust()
+
+def cancelAllExpiredRequests():
+    sql = "UPDATE Request SET RequestStatus = 'Cancelled' WHERE julianday('now') - julianday(RequestDate) > 10;"
+    c.execute(sql)
+    conn.commit()
+    
+    # Use to check if the expired request has been cancelled
+    c.execute("SELECT * FROM REQUEST")
+    print(c.fetchall())
 
