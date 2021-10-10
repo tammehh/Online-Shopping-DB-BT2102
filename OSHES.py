@@ -94,7 +94,7 @@ def advancedSearch(category, model, color, factory, powersupply, productionyear)
         productionyear = db.Items.distinct("0.ProductionYear")
     else:
         productionyear = [productionyear]
-    return(db.Items.find_one({'0.Category': {'$in': category}, '0.Model': {'$in':model}, '0.Factory': {'$in':factory}, '0.PowerSupply': {'$in':powersupply}, '0.ProductionYear':{'$in':productionyear}})))
+    return(db.Items.find_one({'0.Category': {'$in': category}, '0.Model': {'$in':model}, '0.Factory': {'$in':factory}, '0.PowerSupply': {'$in':powersupply}, '0.ProductionYear':{'$in':productionyear}}))
 
 def getNumberOfItemsSoldByModel():
     models = ['Light1', 'Light2', 'SmartHome1', 'Safe1', 'Safe2', 'Safe3']
@@ -165,13 +165,13 @@ def addAdmin(ID, name, gender, number, pw):
     sql = "INSERT INTO Administrator (AdministratorID, AdminName, Gender, PhoneNumber, Password) VALUES " + str(val) + ";"
     c.execute(sql)
     return "done"
----------------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------------
 def addCustomer(ID, name, address, gender, email, number, pw):
     val = (ID, name, address, gender, email, number, pw)
     sql = "INSERT INTO Customers(CustomerID, CustomerName, Address, Gender, EmailAddress, PhoneNumber, Password) VALUES" + str(val) + ";"
     c.execute(sql)
     return "done"
----------------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------------
 def customerPurchaseItem(ItemID, CustomerID):
     # MySQL update
     val = (ItemID, CustomerID, datetime.date.today().strftime('%Y-%m-%d'))
@@ -188,7 +188,7 @@ def customerPurchaseItem(ItemID, CustomerID):
     db.Items.update_one(myquery, newvalues)
 
     return "done"
----------------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------------
 def warrantyEffective(ItemID):
 
     model = db.Items.find_one({"0.ItemID": ItemID})['0']['Model']
@@ -205,7 +205,7 @@ def warrantyEffective(ItemID):
         return (((currentDate.year - purchaseDate_date.year - 1) * 12 + (12 - purchaseDate_date.month + currentDate.month)) < warranty)
     else:
         return (currentDate.month - purchaseDate_date.month < warranty)
----------------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------------
 requestCount = 1
 def customerRequestService(CustomerID, ItemID):
     global requestCount
@@ -237,7 +237,7 @@ def customerRequestService(CustomerID, ItemID):
 
     requestCount += 1
     return "done"
----------------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------------
 def customerPayService(RequestID, ItemID):
     sql = "UPDATE Request SET RequestStatus = 'In progress' WHERE RequestID = ?"
     data = (RequestID,)
@@ -258,7 +258,7 @@ def customerPayService(RequestID, ItemID):
     conn.commit()
 
     return "paid"
----------------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------------
 def administratorApprove(RequestID, ItemID):
     sql = "UPDATE Request SET RequestStatus = 'Approved' WHERE RequestID = ?"
     data = (RequestID,)
@@ -280,7 +280,7 @@ def administratorApprove(RequestID, ItemID):
     db.Items.update_one(myquery, newvalues)
 	
     return "done"
----------------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------------
 def administratorCompleteService(RequestID, ItemID):
     sql = "UPDATE Request SET RequestStatus = 'Completed' WHERE RequestID = ?"
     data = (RequestID,)
@@ -292,7 +292,7 @@ def administratorCompleteService(RequestID, ItemID):
     db.Items.update_one(myquery, newvalues)
 	
     return "done"
----------------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------------
 def getNumberOfItemsSoldByModel():
     models = ['Light1', 'Light2', 'SmartHome1', 'Safe1', 'Safe2', 'Safe3']
     oshe_db = mongodb["OSHES"]
@@ -301,7 +301,7 @@ def getNumberOfItemsSoldByModel():
     for model in models:
        	counts_sold = items.count_documents({'0.Model': model, '0.PurchaseStatus': "Sold"})
         print(f"{model}: " + str(counts_sold))
----------------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------------
 def getNumberOfItemsSoldByCategory():
     categories = ['Lights', 'Locks']
     oshe_db = mongodb["OSHES"]
@@ -310,27 +310,26 @@ def getNumberOfItemsSoldByCategory():
     for category in categories:
         counts_sold = items.count_documents({'0.Category': category, '0.PurchaseStatus': "Sold"})
        	print(f"{category}: " + str(counts_sold))
----------------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------------
 def getItemsUnderService():
     sql = "SELECT COUNT(ServiceStatus) FROM Service WHERE ServiceStatus != 'Completed'"
     c.execute(sql)
     result = c.fetchall()[0][0]
     print(result)
----------------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------------
 def allCustomersWithUnpaidServiceFee():
     sql = "SELECT COUNT(DISTINCT CustomerID) FROM Request WHERE RequestStatus == 'Submitted and Waiting for payment'"
     c.execute(sql)
     result = c.fetchall()[0][0]
     print(result)
----------------------------------------------------------------------------------------------------------------------------
-def customerCancelRequest(RequestID)
-	sql = "UPDATE Request SET RequestStatus = ‘Cancelled’ WHERE RequestID = ?"
-    	data = (RequestID,)
-    	c.execute(sql, data)
-    	conn.commit()
-
-	return “Request Cancelled.”
----------------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------------
+def customerCancelRequest(RequestID):
+    sql = "UPDATE Request SET RequestStatus = ‘Cancelled’ WHERE RequestID = ?"
+    data = (RequestID,)
+    c.execute(sql, data)
+    conn.commit()
+    return "Request Cancelled."
+# ---------------------------------------------------------------------------------------------------------------------------
 def cancelAllExpiredRequests():
     sql = "UPDATE Request SET RequestStatus = 'Cancelled' WHERE julianday('now') - julianday(RequestDate) > 10;"
     c.execute(sql)
@@ -339,7 +338,7 @@ def cancelAllExpiredRequests():
     # Use to check if the expired request has been cancelled
     c.execute("SELECT * FROM REQUEST")
     print(c.fetchall())
----------------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------------
 def initialiseTable():
     models = ['Light1', 'Light2', 'SmartHome1', 'Safe1', 'Safe2', 'Safe3']
     items = db["Items"]
