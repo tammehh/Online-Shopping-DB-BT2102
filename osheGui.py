@@ -420,7 +420,7 @@ class adminHome(tk.Frame):
         tk.Label(self,text=welcome, width=20,font=("Bold",30),fg="white",bg="Light blue").pack()
 
         #interactive buttons
-        tk.Button(self, text='Search products' , width=20,bg="grey",fg='white',command=lambda: master.switch_frame(adminSearchPage)).pack(pady=5)
+        tk.Button(self, text='Search products' , width=20,bg="grey",fg='white',command=lambda: master.switch_frame(adminsearchpage)).pack(pady=5)
         tk.Button(self, text='Inventory' , width=20,bg="orange",fg='white',command= itemSold).pack(pady=5)
         tk.Button(self, text='Current Request' , width=20,bg="blue",fg='white',command= adminServiceTable).pack(pady=5)
         tk.Button(self, text='Unpaid Customers' , width=20,bg= "black",fg='white',command= unpaidCust).pack(pady=5)
@@ -428,10 +428,6 @@ class adminHome(tk.Frame):
 
 #NEED to add in search functions
 class searchpage(tk.Frame):
-    #display result of search in seperate screen incomplete
-    
-        
-#Replace with customer search after that part is done w function, include a item id search as well
     def __init__(self,master):
         tk.Frame.__init__(self,master)
         tk.Label(self, 
@@ -564,8 +560,144 @@ class searchpage(tk.Frame):
         itemIDEntry .pack(pady=10)
         
         tk.Button(self, text='Simple Search' , width=20,bg="black",fg='white', command= lambda: simSearchTable(username, price.get(), category.get(), model.get(), col.get(), fac.get(), ps.get(), py.get())).pack(pady=5)
-        tk.Button(self, text='Advanced Search' , width=20,bg="black",fg='white', command= lambda: advSearchTable(username, price.get(), category.get(), model.get(), col.get(), fac.get(), ps.get(), py.get())).pack(pady=5)
+        tk.Button(self, text='Advanced Search' , width=20,bg="black",fg='white', command= lambda: advSearchTable(username, price.get(), category.get(), model.get(), col.get(), fac.get(), ps.get(), py.get(), itemID.get())).pack(pady=5)
         tk.Button(self, text='BACK' , width=20,bg="black",fg='white',command= lambda: master.switch_frame(custHome)).pack(pady=5)
+
+class adminsearchpage(tk.Frame):
+    def __init__(self,master):
+        tk.Frame.__init__(self,master)
+        tk.Label(self, 
+                 text="""Simple Search""",
+                 justify = tk.LEFT,
+                 padx = 20,font="bold").pack()
+
+
+        tk.Label(self, 
+                 text="""Category:""",
+                 justify = tk.LEFT,
+                 padx = 20).pack()
+
+        OPTIONScat = [
+        "None","Lights", "Locks"
+        ] 
+
+        category = tk.StringVar(self)
+        category.set(OPTIONScat[0]) # default value
+
+        catOption = tk.OptionMenu(self, category, *OPTIONScat)
+        catOption.pack()
+
+        tk.Label(self, 
+                 text="""Model:""",
+                 justify = tk.LEFT,
+                 padx = 20).pack()
+
+        OPTIONSm = [
+        "None","Light1", "Light2", "SmartHome1","Safe1", "Safe2", "Safe3"
+        ] 
+
+        model = tk.StringVar(self)
+        model.set(OPTIONSm[0]) # default value
+
+        modelOption = tk.OptionMenu(self, model, *OPTIONSm)
+        modelOption.pack()
+
+
+        tk.Label(self, 
+                 text="""Advanced Search""",
+                 justify = tk.LEFT,
+                 padx = 20,font="bold").pack()
+
+        tk.Label(self, 
+                 text="""price:""",
+                 justify = tk.LEFT,
+                 padx = 20).pack()
+
+        OPTIONS = [
+        "None",
+        "0-100",
+        "100-200",
+        "200-300"
+        ] 
+
+        price = tk.StringVar(self)
+        price.set(OPTIONS[0]) # default value
+
+        priceOption = tk.OptionMenu(self, price, *OPTIONS)
+        priceOption .pack()
+
+        #colour
+        tk.Label(self, 
+                 text="""colour:""",
+                 justify = tk.LEFT,
+                 padx = 20).pack()
+
+        OPTIONSc = [
+         "None", "Blue","Yellow", "Green", "Black"
+        ] 
+
+        col = tk.StringVar(self)
+        col.set(OPTIONSc[0]) # default value
+
+        colOption = tk.OptionMenu(self, col, *OPTIONSc)
+        colOption .pack()
+
+        #Factory
+        tk.Label(self, 
+                 text="""factory:""",
+                 justify = tk.LEFT,
+                 padx = 20).pack()
+
+        OPTIONSf = [
+         "None", "Malaysia", "China", "Philippines"
+        ] 
+
+        fac = tk.StringVar(self)
+        fac.set(OPTIONSf[0]) # default value
+
+        facOption = tk.OptionMenu(self, fac, *OPTIONSf)
+        facOption .pack()
+
+        #power supply option
+        tk.Label(self, 
+                 text="""Power supply:""",
+                 justify = tk.LEFT,
+                 padx = 20).pack()
+
+        OPTIONSp = [
+         "None", "Battery", "USB"
+        ] 
+
+        ps = tk.StringVar(self)
+        ps.set(OPTIONSp[0]) # default value
+
+        psOption = tk.OptionMenu(self, ps, *OPTIONSp)
+        psOption .pack()
+
+        #Production year
+        tk.Label(self, 
+                 text="""Production Year:""",
+                 justify = tk.LEFT,
+                 padx = 20).pack()
+
+        OPTIONSpy = [
+         "None", "2014", "2015","2016", "2017", "2018", "2019", "2020"
+        ] 
+
+        py = tk.StringVar(self)
+        py.set(OPTIONSpy[0]) # default value
+
+        pyOption = tk.OptionMenu(self, py, *OPTIONSpy)
+        pyOption .pack()
+
+        tk.Label(self,text = "Item ID ", font = ("bold", 10),justify = tk.LEFT).pack()
+        itemID = tk.StringVar(self)
+        itemIDEntry = tk.Entry(self,textvariable=itemID, show="*", font = ("bold", 10))
+        itemIDEntry .pack(pady=10)
+        
+        tk.Button(self, text='Simple Search' , width=20,bg="black",fg='white', command= lambda: adminSimSearchTable(username, price.get(), category.get(), model.get(), col.get(), fac.get(), ps.get(), py.get())).pack(pady=5)
+        tk.Button(self, text='Advanced Search' , width=20,bg="black",fg='white', command= lambda: adminAdvSearchTable(username, price.get(), category.get(), model.get(), col.get(), fac.get(), ps.get(), py.get(), itemID.get())).pack(pady=5)
+        tk.Button(self, text='BACK', width=20,bg="black",fg='white',command= lambda: master.switch_frame(adminHome)).pack(pady=5)
 
                                                                                     
 if __name__ == "__main__":
