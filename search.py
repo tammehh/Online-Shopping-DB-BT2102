@@ -11,9 +11,10 @@ from sqlalchemy import create_engine
 from custTable import *
 from request import *
 from adminFunc import *
+from oshes import *
+import datetime
 
-
-def simSearchTable(price, category, model, color, factory, powersupply, productionyear):
+def simSearchTable(username, price, category, model, color, factory, powersupply, productionyear):
     #initializing screen
     root = Tk()
     root.title('Your Search Results')
@@ -93,13 +94,15 @@ def simSearchTable(price, category, model, color, factory, powersupply, producti
                 count += 1
 
     
-def advSearchTable(price, category, model, color, factory, powersupply, productionyear):
+def advSearchTable(username, price, category, model, color, factory, powersupply, productionyear):
     #initializing screen
     root = Tk()
     root.title('Your Search Results')
     root.geometry("1000x500")
 
+
     conn = sqlite3.connect('OSHE')
+    c = conn.cursor()
     mongodb = MongoClient('localhost', 27017)
     db = mongodb.OSH 
 
@@ -166,20 +169,6 @@ def advSearchTable(price, category, model, color, factory, powersupply, producti
     my_tree.tag_configure('oddrow', background="white")
     my_tree.tag_configure('evenrow', background="lightblue")
     
-    data_frame = LabelFrame(root, text="Purchase Information")
-    data_frame.pack(fill="x", expand="yes", padx=10)
-
-    itemId_label = Label(data_frame, text="ItemID")
-    itemId_label.grid(row=0, column=2, padx=10, pady=10)
-    itemId_entry = Entry(data_frame)
-    itemId_entry.grid(row=0, column=3, padx=10, pady=10)
-
-    model_label = Label(data_frame, text="Model")
-    model_label.grid(row=0, column=4, padx=10, pady=10)
-    model_entry = Entry(data_frame)
-    model_entry.grid(row=0, column=5, padx=10, pady=10)
-
-    
     if category == "None":
         category = db.Items.distinct("0.Category")
     else:
@@ -204,21 +193,23 @@ def advSearchTable(price, category, model, color, factory, powersupply, producti
         productionyear = db.Items.distinct("0.ProductionYear")
     else:
         productionyear = [productionyear]
+    
     item = db.Items.find_one({'0.Category': {'$in': category}, '0.Model': {'$in':model}, '0.Factory': {'$in':factory}, '0.PowerSupply': {'$in':powersupply}, '0.ProductionYear':{'$in':productionyear}})
     my_tree.insert(parent='', index='end',iid=count,text='',values=(item['0']['ItemID'],item['0']['Category'],item['0']['Model'],0,item['0']['Color'],item['0']['Factory'],item['0']['PowerSupply'],item['0']['ProductionYear']), tags=('evenrow',))
     
-    #buttons
-    button_frame = LabelFrame(root, text="")
-    button_frame.pack(fill="x", expand="yes", padx=20)
+    data_frame = LabelFrame(root, text="Purchase Information")
+    data_frame.pack(fill="x", expand="yes", padx=10)
+    itemId_label = Label(data_frame, text="ItemID")
+    itemId_label.grid(row=0, column=2, padx=10, pady=10)
+    itemId_entry = Entry(data_frame)
+    itemId_entry.grid(row=0, column=3, padx=10, pady=10)
 
-    buy_button = Button(button_frame, text="Purchase Product",command = customerPurchaseItem(itemId_entry, username))
-    buy_button.grid(row=0, column=0, padx=10, pady=10)
-    messagebox.showerror(title="SUCCESS",message="Item purchased!")
-
-    # Bind the treeview
-    my_tree.bind("<ButtonRelease-1>",select_record)
+    model_label = Label(data_frame, text="Model")
+    model_label.grid(row=0, column=4, padx=10, pady=10)
+    model_entry = Entry(data_frame)
+    model_entry.grid(row=0, column=5, padx=10, pady=10)
         
-    def select_record(my_tree, e):
+    def select_record(e):
         # Clear entry boxes
         itemId_entry.delete(0, END)
         model_entry.delete(0, END)
@@ -232,15 +223,40 @@ def advSearchTable(price, category, model, color, factory, powersupply, producti
         
         # outpus to entry boxes
         itemId_entry.insert(0, values[0])
-        model_entry.insert(0, values[1])
-        
-
+        model_entry.insert(0, values[2])
 
     def clear_entries():
         # Clear entry boxes
         itemId_entry.delete(0, END)
-        warranty_entry .delete(0, END)
-        c_entry.delete(0, END)
-        ss_entry.delete(0, END)
-        m_entry.delete(0, END)
-        pd_entry.delete(0,END)
+        model_entry .delete(0, END)
+        
+    def customerPurchaseItem(ItemID, CustomerID):
+        conn = sqlite3.connect('OSHE')
+        c = conn.cursor()
+        # MySQL update
+        val = (str(ItemID), str(CustomerID), datetime.date.today().strftime('%Y-%m-%d'))
+        sql = "INSERT INTO Item (ItemID, CustomerID, PurchaseDate) VALUES " + str(val) + ";"
+        c.execute(sql)
+        messagebox.showerror(title="SUCCESS",message="Item purchased!")
+
+        # Use to check if data has been inserted into MySQL.
+        c.execute("SELECT * FROM Item;")
+        print(c.fetchone())
+
+        # MongoDB update
+        myquery = { "0.ItemID": ItemID }
+        newvalues = {"$set": {"0.PurchaseStatus": "Sold"} }
+        db.Items.update_one(myquery, newvalues)
+
+#buttons
+    button_frame = LabelFrame(root, text="")
+    button_frame.pack(fill="x", expand="yes", padx=20)
+
+    buy_button = Button(button_frame, text="Purchase Product",command = lambda: customerPurchaseItem(itemId_entry.get(), username))
+    buy_button.grid(row=0, column=0, padx=10, pady=10)
+
+    select_record_button = Button(button_frame, text="Clear Entry Boxes", command=clear_entries)
+    select_record_button.grid(row=0, column=7, padx=10, pady=10)
+    
+    # Bind the treeview
+    my_tree.bind("<ButtonRelease-1>",select_record)
