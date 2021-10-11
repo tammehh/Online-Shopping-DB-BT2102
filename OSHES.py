@@ -177,6 +177,7 @@ def customerPurchaseItem(ItemID, CustomerID):
     val = (ItemID, CustomerID, datetime.date.today().strftime('%Y-%m-%d'))
     sql = "INSERT INTO Item (ItemID, CustomerID, PurchaseDate) VALUES " + str(val) + ";"
     c.execute(sql)
+    messagebox.showerror(title="SUCCESS",message="Item purchased!")
 
     # Use to check if data has been inserted into MySQL.
     c.execute("SELECT * FROM Item;")
