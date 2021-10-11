@@ -92,6 +92,74 @@ def simSearchTable(username, price, category, model, color, factory, powersupply
                 else:
                     my_tree.insert(parent='', index='end',iid=count,text='',values=(item['0']['ItemID'],item['0']['Category'],item['0']['Model']), tags=('oddrow',))
                 count += 1
+    
+    data_frame = LabelFrame(root, text="Purchase Information")
+    data_frame.pack(fill="x", expand="yes", padx=10)
+    itemId_label = Label(data_frame, text="ItemID")
+    itemId_label.grid(row=0, column=2, padx=10, pady=10)
+    itemId_entry = Entry(data_frame)
+    itemId_entry.grid(row=0, column=3, padx=10, pady=10)
+
+    model_label = Label(data_frame, text="Model")
+    model_label.grid(row=0, column=4, padx=10, pady=10)
+    model_entry = Entry(data_frame)
+    model_entry.grid(row=0, column=5, padx=10, pady=10)
+
+    def select_record(e):
+        # Clear entry boxes
+        itemId_entry.delete(0, END)
+        model_entry.delete(0, END)
+
+        # Grab record Number
+        selected = my_tree.focus()
+        # Grab record values
+        values = my_tree.item(selected, 'values')
+
+        itemId = values[0]
+        
+        # outpus to entry boxes
+        itemId_entry.insert(0, values[0])
+        model_entry.insert(0, values[2])
+
+    def clear_entries():
+        # Clear entry boxes
+        itemId_entry.delete(0, END)
+        model_entry .delete(0, END)
+        
+    def customerPurchaseItem(ItemID, CustomerID):
+        conn = sqlite3.connect('OSHE')
+        c = conn.cursor()
+        # MySQL update
+        # sql1 = "SELECT * FROM Item WHERE ItemID = " + str(ItemID) + ";"
+        # c.execute(sql1)
+        # if c.fetchall != None:
+        #     messagebox.showerror(title="FAILED",message="Item has already been purchased. Please choose a different product")
+        # else:
+        val = (str(ItemID), CustomerID, datetime.date.today().strftime('%Y-%m-%d'))
+        sql = "INSERT INTO Item (ItemID, CustomerID, PurchaseDate) VALUES " + str(val) + ";"
+        c.execute(sql)
+        messagebox.showerror(title="SUCCESS",message="Item purchased!")
+        myquery = { "0.ItemID": ItemID }
+        newvalues = {"$set": {"0.PurchaseStatus": "Sold"} }
+        db.Items.update_one(myquery, newvalues)
+
+        # Use to check if data has been inserted into MySQL.
+        c.execute("SELECT * FROM Item;")
+        print(c.fetchone())
+        
+
+#buttons
+    button_frame = LabelFrame(root, text="")
+    button_frame.pack(fill="x", expand="yes", padx=20)
+
+    buy_button = Button(button_frame, text="Purchase Product",command = lambda: customerPurchaseItem(itemId_entry.get(), username.get()))
+    buy_button.grid(row=0, column=0, padx=10, pady=10)
+
+    select_record_button = Button(button_frame, text="Clear Entry Boxes", command=clear_entries)
+    select_record_button.grid(row=0, column=7, padx=10, pady=10)
+    
+    # Bind the treeview
+    my_tree.bind("<ButtonRelease-1>",select_record)
 
     
 def advSearchTable(username, price, category, model, color, factory, powersupply, productionyear):
@@ -194,7 +262,7 @@ def advSearchTable(username, price, category, model, color, factory, powersupply
     else:
         productionyear = [productionyear]
     
-    item = db.Items.find_one({'0.Category': {'$in': category}, '0.Model': {'$in':model}, '0.Factory': {'$in':factory}, '0.PowerSupply': {'$in':powersupply}, '0.ProductionYear':{'$in':productionyear}})
+    item = db.Items.find_one({'0.Category': {'$in': category}, '0.Model': {'$in':model}, '0.Color': {'$in':color}, '0.Factory': {'$in':factory}, '0.PowerSupply': {'$in':powersupply}, '0.ProductionYear':{'$in':productionyear}})
     my_tree.insert(parent='', index='end',iid=count,text='',values=(item['0']['ItemID'],item['0']['Category'],item['0']['Model'],0,item['0']['Color'],item['0']['Factory'],item['0']['PowerSupply'],item['0']['ProductionYear']), tags=('evenrow',))
     
     data_frame = LabelFrame(root, text="Purchase Information")
@@ -234,25 +302,29 @@ def advSearchTable(username, price, category, model, color, factory, powersupply
         conn = sqlite3.connect('OSHE')
         c = conn.cursor()
         # MySQL update
-        val = (str(ItemID), str(CustomerID), datetime.date.today().strftime('%Y-%m-%d'))
+        # sql1 = "SELECT * FROM Item WHERE ItemID = " + str(ItemID) + ";"
+        # c.execute(sql1)
+        # if c.fetchall != None:
+        #     messagebox.showerror(title="FAILED",message="Item has already been purchased. Please choose a different product")
+        # else:
+        val = (str(ItemID), CustomerID, datetime.date.today().strftime('%Y-%m-%d'))
         sql = "INSERT INTO Item (ItemID, CustomerID, PurchaseDate) VALUES " + str(val) + ";"
         c.execute(sql)
         messagebox.showerror(title="SUCCESS",message="Item purchased!")
+        myquery = { "0.ItemID": ItemID }
+        newvalues = {"$set": {"0.PurchaseStatus": "Sold"} }
+        db.Items.update_one(myquery, newvalues)
 
         # Use to check if data has been inserted into MySQL.
         c.execute("SELECT * FROM Item;")
         print(c.fetchone())
-
-        # MongoDB update
-        myquery = { "0.ItemID": ItemID }
-        newvalues = {"$set": {"0.PurchaseStatus": "Sold"} }
-        db.Items.update_one(myquery, newvalues)
+        
 
 #buttons
     button_frame = LabelFrame(root, text="")
     button_frame.pack(fill="x", expand="yes", padx=20)
 
-    buy_button = Button(button_frame, text="Purchase Product",command = lambda: customerPurchaseItem(itemId_entry.get(), username))
+    buy_button = Button(button_frame, text="Purchase Product",command = lambda: customerPurchaseItem(itemId_entry.get(), username.get()))
     buy_button.grid(row=0, column=0, padx=10, pady=10)
 
     select_record_button = Button(button_frame, text="Clear Entry Boxes", command=clear_entries)
