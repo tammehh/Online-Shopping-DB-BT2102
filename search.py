@@ -135,17 +135,22 @@ def simSearchTable(username, price, category, model, color, factory, powersupply
         # if c.fetchall != None:
         #     messagebox.showerror(title="FAILED",message="Item has already been purchased. Please choose a different product")
         # else:
-        val = (str(ItemID), CustomerID, datetime.date.today().strftime('%Y-%m-%d'))
-        sql = "INSERT INTO Item (ItemID, CustomerID, PurchaseDate) VALUES " + str(val) + ";"
-        c.execute(sql)
-        messagebox.showerror(title="SUCCESS",message="Item purchased!")
-        myquery = { "0.ItemID": ItemID }
-        newvalues = {"$set": {"0.PurchaseStatus": "Sold"} }
-        db.Items.update_one(myquery, newvalues)
+        if ItemID == "":
+            messagebox.showerror(title="FAILED",message="Please choose an item!")
+        else:
+            val = (str(ItemID), CustomerID, datetime.date.today().strftime('%Y-%m-%d'))
+            sql = "INSERT INTO Item (ItemID, CustomerID, PurchaseDate) VALUES " + str(val) + ";"
+            c.execute(sql)
+            messagebox.showerror(title="SUCCESS",message="Item purchased!")
+            myquery = { "0.ItemID": ItemID }
+            newvalues = {"$set": {"0.PurchaseStatus": "Sold"} }
+            db.Items.update_one(myquery, newvalues)
 
         # Use to check if data has been inserted into MySQL.
         c.execute("SELECT * FROM Item;")
-        print(c.fetchone())
+        print(c.fetchall())
+        conn.commit()
+        conn.close()
         
 
 #buttons
@@ -307,17 +312,22 @@ def advSearchTable(username, price, category, model, color, factory, powersupply
         # if c.fetchall != None:
         #     messagebox.showerror(title="FAILED",message="Item has already been purchased. Please choose a different product")
         # else:
-        val = (str(ItemID), CustomerID, datetime.date.today().strftime('%Y-%m-%d'))
-        sql = "INSERT INTO Item (ItemID, CustomerID, PurchaseDate) VALUES " + str(val) + ";"
-        c.execute(sql)
-        messagebox.showerror(title="SUCCESS",message="Item purchased!")
-        myquery = { "0.ItemID": ItemID }
-        newvalues = {"$set": {"0.PurchaseStatus": "Sold"} }
-        db.Items.update_one(myquery, newvalues)
+        if ItemID == "":
+            messagebox.showerror(title="FAILED",message="Please choose an item!")
+        else:
+            val = (str(ItemID), CustomerID, datetime.date.today().strftime('%Y-%m-%d'))
+            sql = "INSERT INTO Item (ItemID, CustomerID, PurchaseDate) VALUES " + str(val) + ";"
+            c.execute(sql)
+            messagebox.showerror(title="SUCCESS",message="Item purchased!")
+            myquery = { "0.ItemID": ItemID }
+            newvalues = {"$set": {"0.PurchaseStatus": "Sold"} }
+            db.Items.update_one(myquery, newvalues)
 
         # Use to check if data has been inserted into MySQL.
         c.execute("SELECT * FROM Item;")
-        print(c.fetchone())
+        print(c.fetchall())
+        conn.commit()
+        conn.close()
         
 
 #buttons
