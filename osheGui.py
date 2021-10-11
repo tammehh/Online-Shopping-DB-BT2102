@@ -11,6 +11,7 @@ from sqlalchemy import create_engine
 from custTable import *
 from request import *
 from adminFunc import *
+from search import *
 
 class sqlFunc():
     def addAdmin(ID, name, gender, number, pw):
@@ -402,7 +403,7 @@ class custHome(tk.Frame):
         tk.Button(self, text='Search/Buy products' , width=20,bg="grey",fg='white',command=lambda: master.switch_frame(searchpage)).pack(pady=5)
         
         #past purchase has a tree view table along with the option to request a service for a product
-        tk.Button(self, text='Past purchase' , width=20,bg="orange",fg='white',command= custTable(username)).pack(pady=5)
+        tk.Button(self, text='Past purchase' , width=20,bg="orange",fg='white',command= lambda: custTable(username)).pack(pady=5)
         
         tk.Button(self, text='Existing requests' , width=20,bg="orange",fg='white',command= lambda: master.switch_frame(AdminLogin)).pack(pady=5)
         tk.Button(self, text='Payments' , width=20,bg="grey",fg='white',command= lambda: master.switch_frame(CustLogin)).pack(pady=5)
@@ -562,8 +563,8 @@ class searchpage(tk.Frame):
         itemIDEntry = tk.Entry(self,textvariable=itemID, show="*", font = ("bold", 10))
         itemIDEntry .pack(pady=10)
         
-        tk.Button(self, text='Simple Search' , width=20,bg="black",fg='white', command= lambda: simSearchTable(price.get(), category.get(), model.get(), col.get(), fac.get(), ps.get(), py.get())).pack(pady=5)
-        tk.Button(self, text='Advanced Search' , width=20,bg="black",fg='white', command= lambda: advSearchTable(price.get(), category.get(), model.get(), col.get(), fac.get(), ps.get(), py.get())).pack(pady=5)
+        tk.Button(self, text='Simple Search' , width=20,bg="black",fg='white', command= lambda: simSearchTable(username, price.get(), category.get(), model.get(), col.get(), fac.get(), ps.get(), py.get())).pack(pady=5)
+        tk.Button(self, text='Advanced Search' , width=20,bg="black",fg='white', command= lambda: advSearchTable(username, price.get(), category.get(), model.get(), col.get(), fac.get(), ps.get(), py.get())).pack(pady=5)
         tk.Button(self, text='BACK' , width=20,bg="black",fg='white',command= lambda: master.switch_frame(custHome)).pack(pady=5)
 
                                                                                     
