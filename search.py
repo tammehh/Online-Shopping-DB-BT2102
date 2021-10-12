@@ -145,12 +145,12 @@ def simSearchTable(username, price, category, model, color, factory, powersupply
             myquery = { "0.ItemID": ItemID }
             newvalues = {"$set": {"0.PurchaseStatus": "Sold"} }
             db.Items.update_one(myquery, newvalues)
+            conn.commit()
+            conn.close()
 
         # Use to check if data has been inserted into MySQL.
         c.execute("SELECT * FROM Item;")
         print(c.fetchall())
-        conn.commit()
-        conn.close()
         
 
     #buttons
@@ -267,7 +267,7 @@ def advSearchTable(username, price, category, model, color, factory, powersupply
     else:
         productionyear = [productionyear]
     
-    item = db.Items.find_one({'0.Category': {'$in': category}, '0.Model': {'$in':model}, '0.Color': {'$in':color}, '0.Factory': {'$in':factory}, '0.PowerSupply': {'$in':powersupply}, '0.ProductionYear':{'$in':productionyear}})
+    item = db.Items.find_one({'0.Category': {'$in': category}, '0.Model': {'$in':model}, '0.Color': {'$in':color}, '0.Factory': {'$in':factory}, '0.PowerSupply': {'$in':powersupply}, '0.ProductionYear':{'$in':productionyear},'0.PurchaseStatus':"Unsold" })
     my_tree.insert(parent='', index='end',iid=count,text='',values=(item['0']['ItemID'],item['0']['Category'],item['0']['Model'],0,item['0']['Color'],item['0']['Factory'],item['0']['PowerSupply'],item['0']['ProductionYear']), tags=('evenrow',))
     
     data_frame = LabelFrame(root, text="Purchase Information")
@@ -322,12 +322,12 @@ def advSearchTable(username, price, category, model, color, factory, powersupply
             myquery = { "0.ItemID": ItemID }
             newvalues = {"$set": {"0.PurchaseStatus": "Sold"} }
             db.Items.update_one(myquery, newvalues)
+            conn.commit()
+            conn.close()
 
         # Use to check if data has been inserted into MySQL.
         c.execute("SELECT * FROM Item;")
         print(c.fetchall())
-        conn.commit()
-        conn.close()
         
 
     #buttons
@@ -559,6 +559,8 @@ def adminAdvSearchTable(username, price, cost, category, model, color, factory, 
             myquery = { "0.ItemID": ItemID }
             newvalues = {"$set": {"0.PurchaseStatus": "Sold"} }
             db.Items.update_one(myquery, newvalues)
+            conn.commit()
+            conn.close()
 
         # Use to check if data has been inserted into MySQL.
         c.execute("SELECT * FROM Item;")
