@@ -167,7 +167,7 @@ def simSearchTable(username, price, category, model, color, factory, powersupply
     my_tree.bind("<ButtonRelease-1>",select_record)
 
     
-def advSearchTable(username, price, category, model, color, factory, powersupply, productionyear):
+def advSearchTable(username, price, category, model, color, factory, powersupply, productionyear, itemID):
     #initializing screen
     root = Tk()
     root.title('Your Search Results')
@@ -344,7 +344,7 @@ def advSearchTable(username, price, category, model, color, factory, powersupply
     my_tree.bind("<ButtonRelease-1>",select_record)
 
 
-def adminAdvSearchTable(username, price, category, model, color, factory, powersupply, productionyear, itemID):
+def adminAdvSearchTable(username, price, cost, category, model, color, factory, powersupply, productionyear, itemID):
     #initializing screen
     root = Tk()
     root.title('Your Search Results')
@@ -385,7 +385,7 @@ def adminAdvSearchTable(username, price, category, model, color, factory, powers
     tree_scroll.config(command=my_tree.yview)
 
     # Define Our Columns
-    my_tree['columns'] = ("ItemID", "Category", "Model", "Price", "Colour", "Factory",
+    my_tree['columns'] = ("ItemID", "Category", "Model", "Cost","Price", "Colour", "Factory",
                         "PowerSupply","Production Year", "Stock Level", "Purchase Status", 
                         "Service Status", "Warranty", "ProductID")
 
@@ -394,6 +394,7 @@ def adminAdvSearchTable(username, price, category, model, color, factory, powers
     my_tree.column("ItemID", anchor=W, width=50)
     my_tree.column("Category", anchor=CENTER, width=90)
     my_tree.column("Model", anchor=CENTER, width=90)
+    my_tree.column("Cost", anchor=CENTER, width=90)
     my_tree.column("Price", anchor=CENTER, width=70)
     my_tree.column("Colour", anchor=CENTER, width=90)
     my_tree.column("Factory", anchor=CENTER, width=100)
@@ -411,17 +412,18 @@ def adminAdvSearchTable(username, price, category, model, color, factory, powers
     my_tree.heading("ItemID",text="ItemID", anchor=W)
     my_tree.heading("Category",text="Category", anchor=CENTER)
     my_tree.heading("Model", text="Model", anchor=CENTER)
-    my_tree.heading("Price", text="Price",anchor=CENTER)
+    my_tree.heading("Cost", text="Cost ($)", anchor=CENTER)
+    my_tree.heading("Price", text="Price ($)",anchor=CENTER)
     my_tree.heading("Colour", text ="Colour", anchor=CENTER)
     my_tree.heading("Factory", text="Factory", anchor=CENTER)
-    my_tree.heading("PowerSupply",text="PowerSupply", anchor=CENTER)
+    my_tree.heading("PowerSupply",text="Power Supply", anchor=CENTER)
     my_tree.heading("Production Year", text="Production Year", anchor=CENTER)
     my_tree.heading("Stock Level", text="Stock Level", anchor=CENTER)
     #newattributes
     my_tree.heading("Stock Level", text="Stock Level", anchor=CENTER)
-    my_tree.heading("Purchase Status", text="PurchaseStatus", anchor=CENTER)
+    my_tree.heading("Purchase Status", text="Purchase Status", anchor=CENTER)
     my_tree.heading("Service Status", text="Service Status", anchor=CENTER)
-    my_tree.heading("Warranty", text="Warranty", anchor=CENTER)
+    my_tree.heading("Warranty", text="Warranty (Months)", anchor=CENTER)
     my_tree.heading("ProductID", text="ProductID", anchor=CENTER)
 
     # Create Striped Row Tags
@@ -440,10 +442,17 @@ def adminAdvSearchTable(username, price, category, model, color, factory, powers
         category = [category]
     if model == "None":
         model_n = "-"
-        model = db.Items.distinct("0.Model")
+        model = db.Items.distinct("0.Model")    
     else:
         model_n = model
         model = [model]
+    if cost == "None":
+        cost_n = "-"
+        cost = db.Products.distinct("0.Cost")
+    else:
+        cost_n = cost
+        modelitem = db.Products.find({'0.Cost':cost})[0]['0']['Model']
+        model = [modelitem]
     if color == "None":
         color_n = "-"
         color = db.Items.distinct("0.Color")
@@ -469,20 +478,34 @@ def adminAdvSearchTable(username, price, category, model, color, factory, powers
         py_n = productionyear
         productionyear = [productionyear]
     if itemID == "":
+        if len(model) > 1:
+            price_n = "-"
+        else:
+            price_n = str(db.Products.find({"0.Model": model[0]})[0]['0']['Price ($)'])
         itemID_n = "-"
         itemID = db.Items.distinct("0.ItemID")
         purchasestatus_n = "-"
         servicestatus_n = "-"
-    else:
-        itemID_n = itemID
-        purchasestatus_n = db.Items.find({'0.ItemID': itemID}, {'0.PurchaseStatus':1})[1][5]
-        servicestatus_n = db.Items.find({'0.ItemID': itemID}, {'0.ServiceStatus':1})[1][8]
-        itemID = [itemID]
+        warranty_n = "-"
+        productid_n = "-"
+        allitems = db.Items.find({'0.ItemID': {'$in': itemID}, '0.Category': {'$in': category}, '0.Model': {'$in':model}, '0.Color': {'$in':color}, '0.Factory': {'$in':factory}, '0.PowerSupply': {'$in':powersupply}, '0.ProductionYear':{'$in':productionyear}}).count()
+        item = db.Items.find_one({'0.ItemID': {'$in': itemID}, '0.Category': {'$in': category}, '0.Model': {'$in':model}, '0.Color': {'$in':color}, '0.Factory': {'$in':factory}, '0.PowerSupply': {'$in':powersupply}, '0.ProductionYear':{'$in':productionyear}})
+        my_tree.insert(parent='', index='end',iid=count,text='',values=(itemID_n,category_n,model_n,cost_n,price_n,color_n,factory_n,ps_n,py_n, allitems, purchasestatus_n, servicestatus_n, warranty_n, productid_n), tags=('evenrow',))
     
 
-    allitems = db.Items.find({'0.ItemID': {'$in': itemID}, '0.Category': {'$in': category}, '0.Model': {'$in':model}, '0.Color': {'$in':color}, '0.Factory': {'$in':factory}, '0.PowerSupply': {'$in':powersupply}, '0.ProductionYear':{'$in':productionyear}}).count()
-    item = db.Items.find_one({'0.ItemID': {'$in': itemID}, '0.Category': {'$in': category}, '0.Model': {'$in':model}, '0.Color': {'$in':color}, '0.Factory': {'$in':factory}, '0.PowerSupply': {'$in':powersupply}, '0.ProductionYear':{'$in':productionyear}})
-    my_tree.insert(parent='', index='end',iid=count,text='',values=(itemID_n,category_n,model_n,0,color_n,factory_n,ps_n,py_n, allitems, purchasestatus_n, servicestatus_n), tags=('evenrow',))
+    else:
+        itemID_n = itemID
+        modeltype = db.Items.find({'0.ItemID': itemID})[0]['0']['Model']
+        purchasestatus_n = db.Items.find({'0.ItemID': itemID})[0]['0']['PurchaseStatus']
+        servicestatus_n = db.Items.find({'0.ItemID': itemID})[0]['0']['ServiceStatus']
+        if servicestatus_n == "":
+            servicestatus_n = "-"
+        warranty_n = db.Products.find({'0.Model': modeltype})[0]['0']['Warranty (months)']
+        productid_n = db.Products.find({'0.Model': modeltype})[0]['0']['ProductID']
+        price_n = db.Products.find({'0.Model': modeltype})[0]['0']['Price ($)']
+        cost_n = db.Products.find({'0.Model': modeltype})[0]['0']['Cost ($)']
+        s = db.Items.find({'0.ItemID': itemID})[0]['0']
+        my_tree.insert(parent='', index='end',iid=count,text='',values=(itemID_n,s['Category'],s['Model'],cost_n, price_n,s['Color'],s['Factory'],s['PowerSupply'],s['ProductionYear'],'1', purchasestatus_n, servicestatus_n, warranty_n, productid_n), tags=('evenrow',))
     
     data_frame = LabelFrame(root, text="Purchase Information")
     data_frame.pack(fill="x", expand="yes", padx=10)
@@ -556,6 +579,7 @@ def adminAdvSearchTable(username, price, category, model, color, factory, powers
     
     # Bind the treeview
     my_tree.bind("<ButtonRelease-1>",select_record)
+
 
 def adminSimSearchTable(username, price, category, model, color, factory, powersupply, productionyear):
     #initializing screen
