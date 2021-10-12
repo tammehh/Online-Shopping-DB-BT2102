@@ -608,8 +608,9 @@ class adminsearchpage(tk.Frame):
                  justify = tk.LEFT,
                  padx = 20,font="bold").pack()
 
+        #price
         tk.Label(self, 
-                 text="""price:""",
+                 text="""Price:""",
                  justify = tk.LEFT,
                  padx = 20).pack()
 
@@ -625,6 +626,25 @@ class adminsearchpage(tk.Frame):
 
         priceOption = tk.OptionMenu(self, price, *OPTIONS)
         priceOption .pack()
+
+        #cost
+        tk.Label(self, 
+                 text="""Cost:""",
+                 justify = tk.LEFT,
+                 padx = 20).pack()
+
+        OPTIONS = [
+        "None",
+        "0-100",
+        "100-200",
+        "200-300"
+        ] 
+
+        cost = tk.StringVar(self)
+        cost.set(OPTIONS[0]) # default value
+
+        costOption = tk.OptionMenu(self, cost, *OPTIONS)
+        costOption .pack()
 
         #colour
         tk.Label(self, 
@@ -696,7 +716,8 @@ class adminsearchpage(tk.Frame):
         itemIDEntry .pack(pady=10)
         
         tk.Button(self, text='Simple Search' , width=20,bg="black",fg='white', command= lambda: adminSimSearchTable(username, price.get(), category.get(), model.get(), col.get(), fac.get(), ps.get(), py.get())).pack(pady=5)
-        tk.Button(self, text='Advanced Search' , width=20,bg="black",fg='white', command= lambda: adminAdvSearchTable(username, price.get(), category.get(), model.get(), col.get(), fac.get(), ps.get(), py.get(), itemID.get())).pack(pady=5)
+        tk.Button(self, text='Advanced Search' , width=20,bg="black",fg='white', command= lambda: adminAdvSearchTable(username, price.get(), cost.get(), category.get(), model.get(), col.get(), fac.get(), ps.get(), py.get(), "")).pack(pady=5)
+        tk.Button(self, text='Search by ItemID', width=20,bg="black",fg='white', command= lambda: adminAdvSearchTable(username, "None", "None", "None", "None", "None", "None", "None", "None", itemID.get())).pack(pady=5)
         tk.Button(self, text='BACK', width=20,bg="black",fg='white',command= lambda: master.switch_frame(adminHome)).pack(pady=5)
 
                                                                                     
